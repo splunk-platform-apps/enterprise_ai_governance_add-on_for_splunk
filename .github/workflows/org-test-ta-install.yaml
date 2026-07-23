@@ -20,4 +20,4 @@ jobs:
   call-workflow-passing-data:
     uses: splunk-platform-apps/.github/.github/workflows/reusable-test-ta-install.yml@v1
     with:
-      addon_name: enterprise_ai_governance_add-on_for_splunk
+      addon_name: TA-ai-governance
