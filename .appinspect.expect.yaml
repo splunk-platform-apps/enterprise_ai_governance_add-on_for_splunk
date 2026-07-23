@@ -1,2 +1,2 @@
 check_all_python_files_are_well_formed:
-  comment: 'The vendored opentelemetry-sdk (transitive dependency of solnlib, installed at build time) uses Python 3.10+ match/case syntax that the AppInspect Python 3.9 parser cannot read. The add-on declares python.required = 3.13 and the file parses cleanly under the Splunk-bundled Python 3.13 runtime.'
+  comment: 'ADDON-123 Vendored opentelemetry-sdk (transitive dependency of solnlib, installed at build time) uses Python 3.10+ match/case syntax that the AppInspect Python 3.9 parser cannot read. The add-on declares python.required = 3.13 and the file parses cleanly under the Splunk-bundled Python 3.13 runtime.'
