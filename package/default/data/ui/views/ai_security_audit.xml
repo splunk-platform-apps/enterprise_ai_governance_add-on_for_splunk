@@ -1,0 +1,154 @@
+<form version="1.1" theme="dark">
+  <label>AI Security Audit</label>
+  <description>Security-relevant activity across AI providers: sign-ins, admin changes, key lifecycle and data movement</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time_range">
+      <label>Time range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="provider_tok">
+      <label>Provider</label>
+      <choice value="*">All</choice>
+      <choice value="anthropic">Anthropic</choice>
+      <choice value="openai">OpenAI</choice>
+      <choice value="gemini">Google Gemini</choice>
+      <choice value="microsoft">Microsoft Copilot</choice>
+      <choice value="selfhosted">Self-hosted / Open-source</choice>
+      <default>*</default>
+      <prefix>aigov_provider IN (</prefix>
+      <suffix>)</suffix>
+      <delimiter>,</delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+    </input>
+    <input type="text" token="user_tok">
+      <label>User filter</label>
+      <default>*</default>
+      <prefix>aigov_user="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Sign-in Events</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_signin_actions` | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Admin / SSO Changes</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_admin_actions` | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[0,5]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>API Key Changes</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_key_actions` | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[0,5]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Data Export / File Events</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_export_actions` | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[0,20]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Security-Relevant Events Over Time</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ | eval sec_class=case(match(aigov_action,"signed_in|login|LOGIN"),"signin", match(aigov_action,"api_key|service_account"),"key_change", match(aigov_action,"export|file_|certificates\."),"data_movement", match(aigov_action,"sso|domain|jit|role|invite|user\.|org_user|organization\."),"admin_change", true(),null()) | where isnotnull(sec_class) | timechart count by sec_class</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Activity by Hour of Day (off-hours detection)</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ | eval hour=strftime(_time,"%H") | stats count by hour aigov_product | sort hour</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Admin, SSO and Key Lifecycle Events</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ (`aigov_admin_actions` OR `aigov_key_actions`) | table _time aigov_product aigov_action aigov_user aigov_src_ip | sort - _time | head 50</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Source IPs with Multiple Users</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ aigov_src_ip=* aigov_user=* | stats dc(aigov_user) as users values(aigov_user) as user_list count by aigov_src_ip | where users > 1 | sort - users</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Data Movement Detail</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_export_actions` | table _time aigov_product aigov_action aigov_user aigov_src_ip file_name | sort - _time | head 50</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,10 @@
+# solnlib pulls the OpenTelemetry OTLP/gRPC export chain, which the add-on
+# never uses (solnlib imports it lazily and observability is not enabled).
+# Excluding it keeps platform-specific binaries (grpcio, protobuf) out of
+# the package so it stays pure-Python and Splunk Cloud friendly.
+grpcio
+googleapis-common-protos
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-exporter-otlp-proto-common
+opentelemetry-proto
+protobuf

@@ -1,0 +1,1562 @@
+{
+    "meta": {
+        "name": "TA-ai-governance",
+        "restRoot": "TA-ai-governance",
+        "version": "1.0.2",
+        "displayName": "Enterprise AI Governance Add-on for Splunk",
+        "schemaVersion": "0.0.10",
+        "navColor": "#5C6BC0",
+        "checkForUpdates": false,
+        "supportedThemes": [
+            "light",
+            "dark"
+        ],
+        "supportedPythonVersion": [
+            "3.13"
+        ]
+    },
+    "pages": {
+        "configuration": {
+            "title": "Configuration",
+            "description": "Configure AI provider accounts and add-on logging",
+            "tabs": [
+                {
+                    "name": "account",
+                    "title": "AI Provider Accounts",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Provider",
+                                "field": "provider"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "help": "A unique name for this AI provider account.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Account Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "AI Provider",
+                            "field": "provider",
+                            "required": true,
+                            "defaultValue": "anthropic",
+                            "help": "Select the AI provider this account connects to.",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "anthropic",
+                                        "label": "Anthropic (Claude Enterprise)"
+                                    },
+                                    {
+                                        "value": "openai",
+                                        "label": "OpenAI (ChatGPT Enterprise / API Platform)"
+                                    },
+                                    {
+                                        "value": "gemini",
+                                        "label": "Google Gemini (Workspace)"
+                                    },
+                                    {
+                                        "value": "microsoft",
+                                        "label": "Microsoft 365 Copilot"
+                                    },
+                                    {
+                                        "value": "selfhosted",
+                                        "label": "Self-hosted / Open-source (OpenAI-compatible, Ollama, vLLM, LiteLLM)"
+                                    }
+                                ]
+                            },
+                            "modifyFieldsOnValue": [
+                                {
+                                    "fieldValue": "anthropic",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "anthropic_admin_key",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "anthropic_analytics_key",
+                                            "display": true,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_refresh_token",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_customer_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_tenant_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_base_url",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_server_type",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_api_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_allow_http",
+                                            "display": false,
+                                            "required": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "openai",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "anthropic_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "anthropic_analytics_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_admin_key",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "google_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_refresh_token",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_customer_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_tenant_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_base_url",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_server_type",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_api_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_allow_http",
+                                            "display": false,
+                                            "required": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "gemini",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "anthropic_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "anthropic_analytics_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_id",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "google_client_secret",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "google_refresh_token",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "google_customer_id",
+                                            "display": true,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_tenant_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_base_url",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_server_type",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_api_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_allow_http",
+                                            "display": false,
+                                            "required": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "microsoft",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "anthropic_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "anthropic_analytics_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_refresh_token",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_customer_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_tenant_id",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "ms_client_id",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "ms_client_secret",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "sh_base_url",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_server_type",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_api_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_allow_http",
+                                            "display": false,
+                                            "required": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "selfhosted",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "anthropic_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "anthropic_analytics_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_customer_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "google_refresh_token",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_client_secret",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "ms_tenant_id",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_admin_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_allow_http",
+                                            "display": true,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_api_key",
+                                            "display": true,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "sh_base_url",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "sh_server_type",
+                                            "display": true,
+                                            "required": false
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Anthropic Admin/Compliance API key",
+                            "field": "anthropic_admin_key",
+                            "help": "Anthropic Admin or Compliance API key (sk-ant-admin...) with compliance scopes. Used for the Compliance Activity Feed and Directory inputs.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Anthropic Analytics API key",
+                            "field": "anthropic_analytics_key",
+                            "help": "Optional. Key with read:analytics scope for usage and cost analytics. Leave blank to reuse the Admin/Compliance key.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "OpenAI Admin API key",
+                            "field": "openai_admin_key",
+                            "help": "OpenAI organization Admin API key (sk-admin-...) with api.audit_logs.read and usage scopes.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Google OAuth Client ID",
+                            "field": "google_client_id",
+                            "help": "OAuth 2.0 client ID authorized for the Admin SDK Reports API (admin.reports.audit.readonly scope).",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Google OAuth Client Secret",
+                            "field": "google_client_secret",
+                            "help": "OAuth 2.0 client secret.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Google OAuth Refresh Token",
+                            "field": "google_refresh_token",
+                            "help": "Refresh token for a Workspace admin authorized with the admin.reports.audit.readonly scope.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Google Workspace Customer ID",
+                            "field": "google_customer_id",
+                            "help": "Optional. Workspace customer ID; defaults to my_customer.",
+                            "required": false,
+                            "defaultValue": "my_customer"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Microsoft Entra Tenant ID",
+                            "field": "ms_tenant_id",
+                            "help": "Microsoft Entra ID (Azure AD) tenant ID.",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Microsoft Application (client) ID",
+                            "field": "ms_client_id",
+                            "help": "App registration client ID with AuditLogsQuery.Read.All and Reports.Read.All application permissions (admin consented).",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Microsoft Client Secret",
+                            "field": "ms_client_secret",
+                            "help": "App registration client secret.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Server base URL",
+                            "field": "sh_base_url",
+                            "help": "Base URL of the self-hosted LLM server, e.g. https://vllm.example.com or https://ollama.example.com:11434. HTTPS strongly recommended; HTTP requires the checkbox below.",
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Base URL must start with http:// or https:// and contain no spaces.",
+                                    "pattern": "^https?://\\S+$"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Server type",
+                            "field": "sh_server_type",
+                            "defaultValue": "openai_compatible",
+                            "required": false,
+                            "help": "Determines which endpoints are used for model inventory, runtime state and metrics.",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "openai_compatible",
+                                        "label": "Generic OpenAI-compatible (/v1/models)"
+                                    },
+                                    {
+                                        "value": "vllm",
+                                        "label": "vLLM (/v1/models + Prometheus /metrics)"
+                                    },
+                                    {
+                                        "value": "ollama",
+                                        "label": "Ollama (/api/tags, /api/ps)"
+                                    },
+                                    {
+                                        "value": "litellm",
+                                        "label": "LiteLLM proxy (/v1/models + Prometheus /metrics)"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "label": "API key / bearer token",
+                            "field": "sh_api_key",
+                            "help": "Optional. Sent as Authorization: Bearer for servers with auth enabled (vLLM --api-key, LiteLLM master key). Leave blank for open endpoints.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Allow plain HTTP (lab / on-prem only)",
+                            "field": "sh_allow_http",
+                            "defaultValue": false,
+                            "required": false,
+                            "help": "Permit http:// base URLs for internal lab servers. Never enable for endpoints reached over untrusted networks; Splunk Cloud deployments should always use HTTPS."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Proxy URL",
+                            "field": "proxy_url",
+                            "help": "Optional HTTPS proxy URL (e.g. http://proxy.example.com:8080) used for outbound API calls from this account.",
+                            "required": false
+                        }
+                    ]
+                },
+                {
+                    "name": "logging",
+                    "title": "Logging",
+                    "entity": [
+                        {
+                            "type": "singleSelect",
+                            "label": "Log level",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG",
+                                        "label": "DEBUG"
+                                    },
+                                    {
+                                        "value": "INFO",
+                                        "label": "INFO"
+                                    },
+                                    {
+                                        "value": "WARNING",
+                                        "label": "WARNING"
+                                    },
+                                    {
+                                        "value": "ERROR",
+                                        "label": "ERROR"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO",
+                            "field": "loglevel",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Log level must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL",
+                                    "pattern": "^DEBUG|INFO|WARNING|ERROR|CRITICAL$"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "inputs": {
+            "title": "Inputs",
+            "description": "Collect audit, directory, usage and cost data from AI providers",
+            "table": {
+                "actions": [
+                    "edit",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Input type",
+                        "field": "serviceTitle"
+                    },
+                    {
+                        "label": "Account",
+                        "field": "account"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Inactive",
+                            "false": "Active"
+                        }
+                    }
+                ]
+            },
+            "services": [
+                {
+                    "name": "anthropic_compliance",
+                    "inputHelperModule": "anthropic_compliance_helper",
+                    "title": "Anthropic Compliance Activity Feed",
+                    "description": "Audit/activity events and directory (users, groups) from the Anthropic Compliance API",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Anthropic."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        60,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 60 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "300"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Initial backfill days",
+                            "field": "backfill_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Days of history to collect on first run (max 180)."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max events per cycle",
+                            "field": "max_events_per_cycle",
+                            "defaultValue": "2000",
+                            "required": false
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect directory (users and groups)",
+                            "field": "collect_directory",
+                            "defaultValue": true,
+                            "required": false,
+                            "help": "Also snapshot organization users and groups each cycle (at most once per 12 hours)."
+                        }
+                    ]
+                },
+                {
+                    "name": "anthropic_analytics",
+                    "inputHelperModule": "anthropic_analytics_helper",
+                    "title": "Anthropic Usage & Cost Analytics",
+                    "description": "Daily usage, cost and adoption summaries from the Anthropic Analytics APIs",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Anthropic."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        3600,
+                                        604800
+                                    ],
+                                    "errorMsg": "Interval must be between 3600 and 604800"
+                                }
+                            ],
+                            "help": "Polling interval in seconds. Analytics data is finalized daily.",
+                            "required": true,
+                            "defaultValue": "86400"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Lookback days",
+                            "field": "lookback_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Re-collect this many trailing days each cycle to pick up late-arriving data."
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect usage reports",
+                            "field": "collect_usage",
+                            "defaultValue": true,
+                            "required": false
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect cost reports",
+                            "field": "collect_cost",
+                            "defaultValue": true,
+                            "required": false
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect adoption summaries",
+                            "field": "collect_summaries",
+                            "defaultValue": true,
+                            "required": false
+                        }
+                    ]
+                },
+                {
+                    "name": "openai_audit",
+                    "inputHelperModule": "openai_audit_helper",
+                    "title": "OpenAI Audit Logs",
+                    "description": "Organization audit logs and user directory from the OpenAI platform API",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider OpenAI."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        60,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 60 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "300"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Initial backfill days",
+                            "field": "backfill_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Days of history to collect on first run."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max events per cycle",
+                            "field": "max_events_per_cycle",
+                            "defaultValue": "2000",
+                            "required": false
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect organization users",
+                            "field": "collect_users",
+                            "defaultValue": true,
+                            "required": false,
+                            "help": "Also snapshot organization users each cycle (at most once per 12 hours)."
+                        }
+                    ]
+                },
+                {
+                    "name": "openai_usage",
+                    "inputHelperModule": "openai_usage_helper",
+                    "title": "OpenAI Usage & Costs",
+                    "description": "Aggregated token usage and daily costs from the OpenAI organization APIs",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider OpenAI."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        3600,
+                                        604800
+                                    ],
+                                    "errorMsg": "Interval must be between 3600 and 604800"
+                                }
+                            ],
+                            "required": true,
+                            "defaultValue": "86400"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Lookback days",
+                            "field": "lookback_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Re-collect this many trailing days each cycle to pick up late-arriving data."
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Bucket width",
+                            "field": "bucket_width",
+                            "defaultValue": "1d",
+                            "required": false,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "1h",
+                                        "label": "1 hour"
+                                    },
+                                    {
+                                        "value": "1d",
+                                        "label": "1 day"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect token usage",
+                            "field": "collect_usage",
+                            "defaultValue": true,
+                            "required": false
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect costs",
+                            "field": "collect_costs",
+                            "defaultValue": true,
+                            "required": false
+                        }
+                    ]
+                },
+                {
+                    "name": "gemini_audit",
+                    "inputHelperModule": "gemini_audit_helper",
+                    "title": "Google Gemini Audit (Workspace)",
+                    "description": "Gemini activity events from the Google Workspace Admin SDK Reports API",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Google Gemini."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        60,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 60 and 86400"
+                                }
+                            ],
+                            "required": true,
+                            "defaultValue": "600"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Initial backfill days",
+                            "field": "backfill_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Days of history to collect on first run (Reports API retains up to 180 days)."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max events per cycle",
+                            "field": "max_events_per_cycle",
+                            "defaultValue": "5000",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Workspace applications",
+                            "field": "applications",
+                            "defaultValue": "gemini_in_workspace_apps",
+                            "required": false,
+                            "help": "Comma-separated Admin SDK Reports applicationName values to collect."
+                        }
+                    ]
+                },
+                {
+                    "name": "copilot_audit",
+                    "inputHelperModule": "copilot_audit_helper",
+                    "title": "Microsoft 365 Copilot Audit",
+                    "description": "Copilot interaction audit records via the Microsoft Graph Audit Log Query API",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Microsoft 365 Copilot."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        300,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 300 and 86400"
+                                }
+                            ],
+                            "help": "Audit log queries are asynchronous on the Microsoft side; each cycle either submits a new query or retrieves finished results.",
+                            "required": true,
+                            "defaultValue": "900"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Initial backfill days",
+                            "field": "backfill_days",
+                            "defaultValue": "7",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Audit record types",
+                            "field": "record_types",
+                            "defaultValue": "copilotInteraction",
+                            "required": false,
+                            "help": "Comma-separated Microsoft Purview audit record types to collect."
+                        }
+                    ]
+                },
+                {
+                    "name": "copilot_usage",
+                    "inputHelperModule": "copilot_usage_helper",
+                    "title": "Microsoft 365 Copilot Usage",
+                    "description": "Copilot usage reports per user via Microsoft Graph reports API",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Microsoft 365 Copilot."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        3600,
+                                        604800
+                                    ],
+                                    "errorMsg": "Interval must be between 3600 and 604800"
+                                }
+                            ],
+                            "required": true,
+                            "defaultValue": "86400"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Report period",
+                            "field": "period",
+                            "defaultValue": "D7",
+                            "required": false,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "D7",
+                                        "label": "7 days"
+                                    },
+                                    {
+                                        "value": "D30",
+                                        "label": "30 days"
+                                    },
+                                    {
+                                        "value": "D90",
+                                        "label": "90 days"
+                                    },
+                                    {
+                                        "value": "D180",
+                                        "label": "180 days"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selfhosted_monitor",
+                    "inputHelperModule": "selfhosted_monitor_helper",
+                    "title": "Self-Hosted Model Monitor",
+                    "description": "Model inventory, availability, runtime state and Prometheus metrics from self-hosted open-source LLM servers",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider Self-hosted / Open-source."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        60,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 60 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "300"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect model inventory",
+                            "field": "collect_models",
+                            "defaultValue": true,
+                            "required": false,
+                            "help": "Snapshot served models each cycle and emit model_added / model_removed audit events on changes."
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect Prometheus metrics",
+                            "field": "collect_metrics",
+                            "defaultValue": true,
+                            "required": false,
+                            "help": "Scrape the metrics endpoint (vLLM / LiteLLM). Ignored for server types without Prometheus metrics."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Metrics path",
+                            "field": "metrics_path",
+                            "defaultValue": "/metrics",
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Metric name prefixes",
+                            "field": "metrics_prefixes",
+                            "defaultValue": "vllm:,litellm_,ollama_",
+                            "required": false,
+                            "help": "Comma-separated prefixes of Prometheus metric families to ingest."
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Collect runtime state (Ollama)",
+                            "field": "collect_runtime",
+                            "defaultValue": true,
+                            "required": false,
+                            "help": "For Ollama servers, also collect currently loaded/running models (/api/ps)."
+                        }
+                    ]
+                }
+            ]
+        },
+        "dashboard": {
+            "panels": [
+                {
+                    "name": "default"
+                }
+            ]
+        }
+    }
+}

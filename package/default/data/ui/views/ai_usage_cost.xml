@@ -1,0 +1,148 @@
+<form version="1.1" theme="dark">
+  <label>AI Usage &amp; Cost Monitoring</label>
+  <description>Token usage, spend and adoption across AI providers</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time_range">
+      <label>Time range</label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="provider_tok">
+      <label>Provider</label>
+      <choice value="*">All</choice>
+      <choice value="anthropic">Anthropic</choice>
+      <choice value="openai">OpenAI</choice>
+      <choice value="microsoft">Microsoft Copilot</choice>
+      <default>*</default>
+      <prefix>aigov_provider IN (</prefix>
+      <suffix>)</suffix>
+      <delimiter>,</delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total Cost (all providers)</title>
+        <search>
+          <query>`aigov_cost` $provider_tok$ | eval cost=coalesce('amount.value', cost, amount) | stats sum(cost) as total | eval total=round(total,2)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.00</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Input Tokens</title>
+        <search>
+          <query>`aigov_usage` $provider_tok$ | eval in_tok=coalesce(input_tokens, prompt_tokens) | stats sum(in_tok)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Output Tokens</title>
+        <search>
+          <query>`aigov_usage` $provider_tok$ | eval out_tok=coalesce(output_tokens, completion_tokens) | stats sum(out_tok)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Copilot Active Users (last report)</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:copilot:usage" lastActivityDate=* | stats dc(userPrincipalName)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Daily Cost by Provider</title>
+        <search>
+          <query>`aigov_cost` $provider_tok$ | eval cost=coalesce('amount.value', cost, amount) | timechart span=1d sum(cost) by aigov_product</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Token Usage Over Time</title>
+        <search>
+          <query>`aigov_usage` $provider_tok$ | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | timechart span=1d sum(in_tok) as input sum(out_tok) as output</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Usage by Model</title>
+        <search>
+          <query>`aigov_usage` $provider_tok$ model=* | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | stats sum(in_tok) as input_tokens sum(out_tok) as output_tokens sum(num_model_requests) as requests by model aigov_product | sort - input_tokens</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Cost by Line Item / Project</title>
+        <search>
+          <query>`aigov_cost` $provider_tok$ | eval cost=coalesce('amount.value', cost, amount) | eval item=coalesce(line_item, project_id, description, "unattributed") | stats sum(cost) as total_cost by item aigov_product | eval total_cost=round(total_cost,2) | sort - total_cost | head 20</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Microsoft 365 Copilot Usage by User (latest report)</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:copilot:usage" | stats latest(lastActivityDate) as last_activity latest(microsoftTeamsCopilotLastActivityDate) as teams latest(wordCopilotLastActivityDate) as word latest(excelCopilotLastActivityDate) as excel latest(outlookCopilotLastActivityDate) as outlook by userPrincipalName | sort - last_activity | head 50</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Anthropic Adoption Summary (latest)</title>
+        <search>
+          <query>`aigov_index` sourcetype="anthropic:analytics:summary" | head 7 | table _time daily_active_user_count weekly_active_user_count daily_adoption_rate monthly_adoption_rate</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
