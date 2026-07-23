@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://splunk-platform-apps.github.io/enterprise_ai_governance_add-on_for_splunk/docs
+    about: Please check our documentation before opening an issue.
+  - name: Community Forum
+    url: https://splunkcommunity.slack.com/archives/C04DC8JJ6
+    about: For general questions, use the forum instead of opening an issue.

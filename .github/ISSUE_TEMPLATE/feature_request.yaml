@@ -1,0 +1,32 @@
+name: Feature Request
+description: File a new feature request.
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: [myeackcisco]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        :heart_hands: Thanks for taking the time to fill out this feature request!
+  - type: textarea
+    id: feat-description
+    attributes:
+      label: Description
+      description: A clear and concise description of the feature you would like to have integrated.
+    validations:
+      required: true
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: Available Alternatives
+      description: A clear and concise description of any alternative solutions or features you've considered.
+    validations:
+      required: false
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Anything else?
+      description: |
+        Links? References? Images? Please attach or provide anything that will give us more context about the requested feature!
+    validations:
+      required: false

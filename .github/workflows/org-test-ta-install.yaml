@@ -1,0 +1,23 @@
+name: Test Splunk TA Installs
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+    paths:
+      - package/**
+
+# Allow only 1 concurrent execution
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  call-workflow-passing-data:
+    uses: splunk-platform-apps/.github/.github/workflows/reusable-test-ta-install.yml@v1
+    with:
+      addon_name: enterprise_ai_governance_add-on_for_splunk

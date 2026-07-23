@@ -1,0 +1,23 @@
+name: Deploy Docusaurus to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'website/docusaurus.*'
+
+# Allow only 1 concurrent execution
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  call-workflow:
+    uses: splunk-platform-apps/.github/.github/workflows/reusable-docs-deploy.yml@v1

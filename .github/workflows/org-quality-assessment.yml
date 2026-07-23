@@ -1,0 +1,23 @@
+name: Quality Assessment
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'package/**'
+      - '!package/app.manifest'
+      - '!package/LICENSES/**'
+
+# Allow only 1 concurrent execution
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  call-workflow:
+    uses: splunk-platform-apps/.github/.github/workflows/reusable-quality-assessment.yml@v1

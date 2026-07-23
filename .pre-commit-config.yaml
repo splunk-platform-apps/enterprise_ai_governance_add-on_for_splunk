@@ -1,0 +1,48 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    -   id: trailing-whitespace
+        files: ^package/bin/
+        exclude: ^package/bin/[^/]+/aob_py3/
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: check-json
+        types: [text]
+        files: \.(json|manifest)$
+    -   id: check-xml
+    -   id: debug-statements
+        files: ^package/bin/
+        exclude: ^package/bin/[^/]+/aob_py3/
+    -   id: check-merge-conflict
+
+    # Python linting and formatting
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.15.20'
+    hooks:
+    # Run the linter.
+    -   id: ruff-check
+    # Run the formatter.
+    -   id: ruff-format
+
+    # Shell linting and formatting
+-   repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.11.0
+    hooks:
+    -   id: shellcheck
+
+    # Check code for security issues, bugs, and bad patterns
+-   repo: https://github.com/returntocorp/semgrep
+    rev: v1.168.0
+    hooks:
+    -   id: semgrep
+
+    # Scan code to prevent committing secrets into the repo
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+    -   id: detect-secrets
+        args: ['--no-verify']
+        exclude: "README.md"

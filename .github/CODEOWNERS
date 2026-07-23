@@ -1,0 +1,20 @@
+#####################################################
+#
+# List of approvers for splunk-platform-apps .github repository
+#
+#####################################################
+#
+# Learn about CODEOWNERS file format:
+#  https://help.github.com/en/articles/about-code-owners
+#
+
+* @myeackcisco
+
+# Make CODEOWNERS file changes require admin approval
+/.github/CODEOWNERS @splunk-platform-apps/admins
+
+# Make CI/CD org pipelines changes require admin approval
+/.github/workflows/org-*.yml @splunk-platform-apps/admins
+
+# Make docusaurus changes require admin approval
+ /website/docusaurus.config.ts @splunk-platform-apps/admins
