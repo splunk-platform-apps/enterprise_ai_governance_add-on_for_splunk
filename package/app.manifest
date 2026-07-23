@@ -36,9 +36,9 @@
         },
         "releaseDate": null,
         "releaseNotes": {
-            "name": "README",
-            "text": "./README.txt",
-            "uri": null
+            "name": "CHANGELOG",
+            "text": null,
+            "uri": "https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/blob/main/CHANGELOG.md"
         },
         "title": "Enterprise AI Governance Add-on for Splunk"
     },
