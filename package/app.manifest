@@ -4,9 +4,14 @@
     "info": {
         "author": [
             {
-                "company": null,
-                "email": "mgrover@splunk.com",
-                "name": "AI Governance Add-on Contributors"
+                "company": "Cisco",
+                "email": "myeack@cisco.com",
+                "name": "Michael Yeack"
+            },
+            {
+                "company": "Cisco",
+                "email": "manangro@cisco.com",
+                "name": "Manan Grover"
             }
         ],
         "classification": {
@@ -40,20 +45,16 @@
             "text": null,
             "uri": "https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/blob/main/CHANGELOG.md"
         },
-        "title": "Enterprise AI Governance Add-on for Splunk"
+        "title": "Enterprise AI Governance App for Splunk"
     },
     "inputGroups": null,
     "platformRequirements": null,
     "schemaVersion": "2.0.0",
     "supportedDeployments": [
-        "_standalone",
-        "_distributed",
-        "_search_head_clustering"
+        "_standalone"
     ],
     "targetWorkloads": [
-        "_search_heads",
-        "_indexers",
-        "_forwarders"
+        "_search_heads"
     ],
     "tasks": null
 }

@@ -3,7 +3,7 @@
         "name": "TA-ai-governance",
         "restRoot": "TA-ai-governance",
         "version": "1.0.2",
-        "displayName": "Enterprise AI Governance Add-on for Splunk",
+        "displayName": "Enterprise AI Governance App for Splunk",
         "schemaVersion": "0.0.10",
         "navColor": "#5C6BC0",
         "checkForUpdates": false,

@@ -1,4 +1,4 @@
-# Enterprise AI Governance Add-on for Splunk
+# Enterprise AI Governance App for Splunk
 
 Collects and normalizes audit, identity, usage, cost, and health data from enterprise AI platforms — Anthropic Claude Enterprise, OpenAI, Google Gemini (Workspace), Microsoft 365 Copilot and self-hosted LLM servers — so teams can monitor security, compliance, adoption, spend, and operational risk in Splunk.
 

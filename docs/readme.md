@@ -1,8 +1,8 @@
-# Enterprise AI Governance Add-on for Splunk
+# Enterprise AI Governance App for Splunk
 
-The Enterprise AI Governance Add-on for Splunk (`TA-ai-governance`) collects audit, directory, usage and cost data from enterprise AI platforms into Splunk — one add-on, one normalized schema, provider-agnostic dashboards and alerts. Use Splunk as the control plane for AI governance: security monitoring, compliance auditing, usage and cost visibility, and incident investigation across every LLM platform your organization uses.
+The Enterprise AI Governance App for Splunk (`TA-ai-governance`) collects audit, directory, usage and cost data from enterprise AI platforms into Splunk — one app, one normalized schema, provider-agnostic dashboards and alerts. Use Splunk as the control plane for AI governance: security monitoring, compliance auditing, usage and cost visibility, and incident investigation across every LLM platform your organization uses.
 
-The add-on is built with the [UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) (`splunk-add-on-ucc-framework` 6.5.x), runs on the Splunk-bundled Python 3 interpreter, and uses `solnlib`, `splunktaucclib` and the Splunk Python SDK (bundled at build time — nothing to install separately).
+The app is built with the [UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) (`splunk-add-on-ucc-framework` 6.5.x), runs on the Splunk-bundled Python 3 interpreter, and uses `solnlib`, `splunktaucclib` and the Splunk Python SDK (bundled at build time — nothing to install separately).
 
 ## Features
 
@@ -19,35 +19,31 @@ The add-on is built with the [UCC Framework](https://splunk.github.io/addonfacto
 * **Normalized schema** — every event carries `aigov_provider`, `aigov_product`, `aigov_category`, `aigov_action`, `aigov_user` and `aigov_src_ip`, so dashboards, macros and alerts work identically across providers.
 * **Five dashboards** — AI Governance Overview (default), AI Security Audit, AI Usage & Cost, Self-Hosted AI, and AI Compliance.
 * **Eight ready-made alerts** (shipped disabled) — API key lifecycle, admin/SSO changes, data exports, new users, off-hours spikes, spend thresholds, new self-hosted models, server-down.
-* **KV Store checkpoints** (collection `ta_ai_governance_checkpoints`) — inputs resume where they left off across restarts; search head clustering is supported.
+* **KV Store checkpoints** (collection `ta_ai_governance_checkpoints`) — inputs resume where they left off across restarts; checkpoint storage is designed to support search head clustering (not yet validated).
 * **Encrypted credentials** — all API keys and secrets are stored in Splunk secure storage, never in plain-text conf files.
 * **Proxy support** — an optional per-account proxy URL routes provider traffic through your egress proxy.
 
 ## Getting Started
 
-> The add-on polls each configured provider's admin/audit APIs on a schedule, normalizes the responses into `aigov_*` fields, and indexes them for the bundled dashboards and alerts.
+> The app polls each configured provider's admin/audit APIs on a schedule, normalizes the responses into `aigov_*` fields, and indexes them for the bundled dashboards and alerts.
 
 ### Requirements
 
-* Splunk Cloud Platform, or Splunk Enterprise 9.x / 10.x — standalone or distributed (search head clustering supported).
+* Splunk Cloud Platform, or Splunk Enterprise 10.x — standalone (distributed and search head cluster deployments are not yet validated).
 * HTTPS egress from the instance running the inputs to the provider APIs you enable (or to your self-hosted LLM servers).
 * Admin-level API credentials for at least one supported provider (see [Configuration](#configuration) for the exact keys, scopes and permissions).
 
 ### Installation
 
-Download the packaged add-on from the [releases page](https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/releases) and install it following the [Splunk documentation](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons):
+Download the packaged app from the [releases page](https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/releases) and install it following the [Splunk documentation](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
 
-| Deployment | Install on |
-|---|---|
-| Standalone | The search head — it runs inputs, dashboards and macros |
-| Distributed | The search head (dashboards, macros, alerts) **and** the heavy forwarder / IDM that runs the inputs |
-| Search head cluster | All SHC members via the deployer; run inputs on a heavy forwarder / IDM, not on the cluster |
+**Install this app on the search head.** Dashboards, macros, alerts and the modular inputs all run there in the validated standalone topology. Distributed and search head cluster deployments are designed for (KV Store checkpointing keeps inputs restartable across members) but have not yet been validated — hold off on those topologies until a release announces support.
 
 On Splunk Cloud, install as a private app (self-service app install / ACS).
 
 ### Configuration
 
-The add-on integrates with third-party services. Authentication methods used per provider:
+The app integrates with third-party services. Authentication methods used per provider:
 
 * **Anthropic Claude Enterprise** — API key authentication. An Admin/Compliance API key (`sk-ant-admin...`, sent as `x-api-key`) drives the activity feed and users/groups directory; an optional Analytics key with the `read:analytics` scope (sent as a `Bearer` token) enables usage, cost and adoption data.
 * **OpenAI** — API key authentication. An organization Admin API key (`sk-admin-...`, sent as a `Bearer` token) with `api.audit_logs.read` and usage scopes, created under organization settings.
@@ -84,7 +80,7 @@ Category macros (`aigov_all`, `aigov_audit`, `aigov_directory`, `aigov_usage`, `
 
 ## Data reference
 
-Sourcetypes written by the add-on:
+Sourcetypes written by the app:
 
 | Provider | Sourcetypes |
 |---|---|
@@ -119,11 +115,11 @@ Checkpoints live in the KV Store collection `ta_ai_governance_checkpoints`. Dele
 ## Versions Supported
 
 * Splunk Cloud Platform
-* Splunk Enterprise 9.x and 10.x (developed and tested on Splunk Enterprise 10.4)
+* Splunk Enterprise 10.x (developed and tested on Splunk Enterprise 10.4, standalone)
 
 ## Credits & Acknowledgements
 
-* Built by the AI Governance Add-on contributors.
+* Built by Michael Yeack and Manan Grover.
 * Built with the [UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) and patterned on the [splunk-example-ta](https://github.com/splunk/splunk-example-ta).
 
 ## References
@@ -135,16 +131,4 @@ Checkpoints live in the KV Store collection `ta_ai_governance_checkpoints`. Dele
 
 ## Contributing
 
-See the [CONTRIBUTING.md](https://github.com/splunk-platform-apps/.github/blob/main/.github/CONTRIBUTING.md) file for details.
-
-### Build and package from source
-
-The repository holds the UCC source (`globalConfig.json` + `package/`). To build locally:
-
-```
-pip install -r requirements-dev.txt
-ucc-gen build --ta-version 1.0.2
-ucc-gen package --path output/TA-ai-governance
-```
-
-CI builds, runs Splunk AppInspect and packages the add-on automatically on every pull request, and publishes a release on version tags.
+See the [CONTRIBUTING.md](https://github.com/splunk-platform-apps/.github/blob/main/.github/CONTRIBUTING.md) file for details. The app is built with the [UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) — refer to its documentation for build and packaging instructions.
