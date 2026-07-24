@@ -1,0 +1,125 @@
+<form version="1.1" theme="dark">
+  <label>AI Compliance &amp; Directory</label>
+  <description>User lifecycle, directory posture and compliance-relevant activity across AI providers</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time_range">
+      <label>Time range</label>
+      <default>
+        <earliest>-7d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Anthropic Provisioned Users</title>
+        <search>
+          <query>`aigov_index` sourcetype="anthropic:compliance:user" | dedup id | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>OpenAI Provisioned Users</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:openai:user" | dedup id | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Invites / User Adds</title>
+        <search>
+          <query>`aigov_audit` | regex aigov_action="invite|user_invite|user\.added" | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>User Removals</title>
+        <search>
+          <query>`aigov_audit` | regex aigov_action="user_deleted|user\.deleted|user_remove" | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>User Lifecycle Events Over Time</title>
+        <search>
+          <query>`aigov_audit` | eval lifecycle=case(match(aigov_action,"invite"),"invite", match(aigov_action,"user\.added|user_invite_accepted"),"joined", match(aigov_action,"user_deleted|user\.deleted"),"removed", match(aigov_action,"role"),"role_change", true(),null()) | where isnotnull(lifecycle) | timechart count by lifecycle</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Anthropic Users by Role (latest snapshot)</title>
+        <search>
+          <query>`aigov_index` sourcetype="anthropic:compliance:user" | dedup id | stats count by role | sort - count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Provisioned Users Without Recent Activity (30d)</title>
+        <search>
+          <query>`aigov_directory` | dedup id sourcetype | eval directory_email=coalesce(email, email_address, aigov_user) | where isnotnull(directory_email) | join type=left directory_email [ search `aigov_audit` aigov_user=* earliest=-30d | stats latest(_time) as last_active by aigov_user | rename aigov_user as directory_email ] | where isnull(last_active) | table directory_email aigov_product role status | head 100</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Shadow Users: Active but Not in Directory</title>
+        <search>
+          <query>`aigov_audit` aigov_user=* aigov_provider IN ("anthropic","openai") | stats latest(_time) as last_active count by aigov_user aigov_provider | join type=left aigov_user [ search `aigov_directory` | eval aigov_user=coalesce(email, email_address) | dedup aigov_user | eval in_directory="yes" | fields aigov_user in_directory ] | where isnull(in_directory) | convert ctime(last_active) | sort - count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Compliance-Relevant Events (exports, retention, policy)</title>
+        <search>
+          <query>`aigov_audit` | regex aigov_action="export|retention|policy|dlp|compliance" | table _time aigov_product aigov_action aigov_user aigov_src_ip | sort - _time | head 50</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

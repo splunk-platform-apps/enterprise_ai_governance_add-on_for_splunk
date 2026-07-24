@@ -78,3 +78,6 @@ build/
 # Pre-commit
 .ruff-cache
 .python-version
+
+### Locally packaged add-on artifacts
+TA-ai-governance-*.tar.gz

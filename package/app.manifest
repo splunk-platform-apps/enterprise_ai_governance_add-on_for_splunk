@@ -1,0 +1,60 @@
+{
+    "dependencies": null,
+    "incompatibleApps": null,
+    "info": {
+        "author": [
+            {
+                "company": "Cisco",
+                "email": "myeack@cisco.com",
+                "name": "Michael Yeack"
+            },
+            {
+                "company": "Cisco",
+                "email": "manangro@cisco.com",
+                "name": "Manan Grover"
+            }
+        ],
+        "classification": {
+            "categories": [
+                "Security, Fraud & Compliance",
+                "IT Operations"
+            ],
+            "developmentStatus": "Production/Stable",
+            "intendedAudience": "IT Professionals, Security Analysts, Compliance Teams"
+        },
+        "commonInformationModels": null,
+        "description": "Collect audit, directory, usage and cost data from Anthropic Claude Enterprise, OpenAI, Google Gemini (Workspace) and Microsoft 365 Copilot for AI monitoring, governance and security in Splunk.",
+        "id": {
+            "group": null,
+            "name": "TA-ai-governance",
+            "version": "1.0.2"
+        },
+        "license": {
+            "name": "Apache-2.0",
+            "text": "./LICENSES/Apache-2.0.txt",
+            "uri": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        "privacyPolicy": {
+            "name": null,
+            "text": null,
+            "uri": null
+        },
+        "releaseDate": null,
+        "releaseNotes": {
+            "name": "CHANGELOG",
+            "text": null,
+            "uri": "https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/blob/main/CHANGELOG.md"
+        },
+        "title": "Enterprise AI Governance App for Splunk"
+    },
+    "inputGroups": null,
+    "platformRequirements": null,
+    "schemaVersion": "2.0.0",
+    "supportedDeployments": [
+        "_standalone"
+    ],
+    "targetWorkloads": [
+        "_search_heads"
+    ],
+    "tasks": null
+}

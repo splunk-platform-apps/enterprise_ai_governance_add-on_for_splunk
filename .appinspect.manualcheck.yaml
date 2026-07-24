@@ -1,4 +1,16 @@
-name_of_manual_check_1:
-  comment: 'your comment - do not leave empty'
-name_of_manual_check_2:
-  comment: 'your comment - do not leave empty'
+check_for_supported_tls:
+  comment: 'All outbound calls use the Python standard library urllib over HTTPS with default certificate verification; TLS is negotiated by the Splunk-bundled Python/OpenSSL. Plain HTTP is a per-account opt-in intended for lab self-hosted servers only.'
+check_for_environment_variable_use_in_python:
+  comment: 'Add-on code reads no environment variables; only the bundled Splunk-supported libraries (solnlib, splunktaucclib, splunk-sdk) use standard SPLUNK_HOME handling.'
+check_for_builtin_functions:
+  comment: 'No eval/exec/compile in add-on code; dynamic attribute access occurs only inside the bundled Splunk-supported libraries.'
+check_for_data_compression_and_archiving:
+  comment: 'The add-on does not create or extract archives; compression references exist only inside bundled third-party libraries.'
+check_python_untrusted_xml_functions:
+  comment: 'Add-on code parses JSON responses only; XML handling in bundled libraries goes through defusedxml.'
+check_for_file_and_directory_access:
+  comment: 'File access is limited to add-on log files and KV Store checkpointing via solnlib under SPLUNK_HOME; no other filesystem paths are read or written.'
+check_all_python_files_are_well_formed:
+  comment: 'All Python files are plain UTF-8 sources, either authored in this repository or installed from PyPI at build time.'
+check_for_binary_files_without_source_code:
+  comment: 'The package ships no compiled binaries; package/lib/exclude.txt removes grpcio/protobuf transitive dependencies so lib/ stays pure Python.'

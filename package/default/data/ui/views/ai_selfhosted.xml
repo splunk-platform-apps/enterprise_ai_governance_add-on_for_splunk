@@ -1,0 +1,142 @@
+<form version="1.1" theme="dark">
+  <label>Self-Hosted &amp; Open-Source Models</label>
+  <description>Inventory, availability, throughput and governance for self-hosted LLM servers (Ollama, vLLM, LiteLLM, OpenAI-compatible)</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time_range">
+      <label>Time range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="server_tok">
+      <label>Server</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>base_url</fieldForLabel>
+      <fieldForValue>base_url</fieldForValue>
+      <search>
+        <query>`aigov_selfhosted` base_url=* | stats count by base_url</query>
+        <earliest>-7d@d</earliest>
+        <latest>now</latest>
+      </search>
+      <prefix>base_url="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Servers Monitored</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:health" | stats dc(base_url)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Servers Down (latest check)</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:health" | stats latest(status) as status by base_url | where status="down" | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Models Served</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" $server_tok$ | dedup model_id base_url | stats count</query>
+          <earliest>-7d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Model Inventory Changes</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" $server_tok$ | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Server Availability &amp; Latency</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:health" $server_tok$ | timechart avg(response_time_ms) as avg_latency_ms by base_url</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Request / Token Counters (Prometheus)</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:metric" $server_tok$ | timechart span=10m max(value) as value by metric_name useother=f limit=10</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Model Inventory (current)</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" $server_tok$ | dedup model_id base_url | table model_id base_url server_type owned_by size parameter_size quantization_level snapshot_time | sort base_url model_id</query>
+          <earliest>-7d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Model Inventory Change Audit (added / removed)</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" $server_tok$ | table _time aigov_action model_id server_type source | sort - _time | head 50</query>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Currently Loaded Models (Ollama)</title>
+        <search>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:runtime" $server_tok$ | dedup model_id base_url | table model_id base_url size size_vram expires_at | sort base_url</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

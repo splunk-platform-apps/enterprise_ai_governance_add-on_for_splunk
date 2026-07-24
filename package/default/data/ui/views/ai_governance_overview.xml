@@ -1,0 +1,156 @@
+<form version="1.1" theme="dark">
+  <label>AI Governance Overview</label>
+  <description>Cross-provider view of AI platform activity, adoption and data collection health</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time_range">
+      <label>Time range</label>
+      <default>
+        <earliest>-7d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="provider_tok">
+      <label>Provider</label>
+      <choice value="*">All</choice>
+      <choice value="anthropic">Anthropic</choice>
+      <choice value="openai">OpenAI</choice>
+      <choice value="gemini">Google Gemini</choice>
+      <choice value="microsoft">Microsoft Copilot</choice>
+      <choice value="selfhosted">Self-hosted / Open-source</choice>
+      <default>*</default>
+      <prefix>aigov_provider IN (</prefix>
+      <suffix>)</suffix>
+      <delimiter>,</delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total AI Events</title>
+        <search>
+          <query>`aigov_all` $provider_tok$ | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="useColors">0</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Active AI Users</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ aigov_user=* | stats dc(aigov_user)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Providers Reporting</title>
+        <search>
+          <query>`aigov_all` $provider_tok$ | stats dc(aigov_provider)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xdc4e41","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Admin / Security Changes</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ `aigov_admin_actions` | stats count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[0,10]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>AI Activity Over Time by Provider</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ | timechart count by aigov_product</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Event Volume by Provider</title>
+        <search>
+          <query>`aigov_all` $provider_tok$ | stats count by aigov_product</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Daily Active Users by Provider</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ aigov_user=* | timechart span=1d dc(aigov_user) by aigov_product</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Top Actions Across Providers</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ aigov_action=* | stats count by aigov_action aigov_product | sort - count | head 15</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Most Active Users</title>
+        <search>
+          <query>`aigov_audit` $provider_tok$ aigov_user=* | stats count as events dc(aigov_action) as distinct_actions values(aigov_product) as products by aigov_user | sort - events | head 20</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Data Collection Health (last event per sourcetype)</title>
+        <search>
+          <query>`aigov_all` | stats latest(_time) as last_event count by sourcetype | eval minutes_ago=round((now()-last_event)/60,0) | convert ctime(last_event) | sort - minutes_ago</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
