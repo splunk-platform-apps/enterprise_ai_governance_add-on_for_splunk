@@ -11,6 +11,7 @@ from ai_governance import PROVIDER_OPENAI, ST_OPENAI_AUDIT, ST_OPENAI_USER
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope, normalize_openai_audit
+from ai_governance.http_client import APIError
 from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_int, write_json_event
 from ai_governance.providers.openai_api import OpenAIAPI
@@ -56,22 +57,36 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     # The audit log API returns newest first; collect then checkpoint max.
     count = 0
     max_seen = int(last_effective_at)
-    for record in api.list_audit_logs(
-        effective_at_gt=int(last_effective_at), max_items=max_events
-    ):
-        normalized = normalize_openai_audit(record)
-        write_json_event(
-            event_writer=event_writer,
-            payload=normalized,
-            index=index,
-            sourcetype=ST_OPENAI_AUDIT,
-            source="aigov:openai:audit:%s" % account_name,
-            event_time=record.get("effective_at"),
-        )
-        count += 1
-        effective_at = record.get("effective_at")
-        if isinstance(effective_at, (int, float)) and effective_at > max_seen:
-            max_seen = int(effective_at)
+    try:
+        for record in api.list_audit_logs(
+            effective_at_gt=int(last_effective_at), max_items=max_events
+        ):
+            normalized = normalize_openai_audit(record)
+            write_json_event(
+                event_writer=event_writer,
+                payload=normalized,
+                index=index,
+                sourcetype=ST_OPENAI_AUDIT,
+                source="aigov:openai:audit:%s" % account_name,
+                event_time=record.get("effective_at"),
+            )
+            count += 1
+            effective_at = record.get("effective_at")
+            if isinstance(effective_at, (int, float)) and effective_at > max_seen:
+                max_seen = int(effective_at)
+    except APIError as exc:
+        if exc.status_code in (401, 403):
+            logger.error(
+                "OpenAI rejected the configured key (HTTP %s): %s - the audit "
+                "logs API requires an organization Admin API key (sk-admin-...) "
+                "created by an organization Owner under platform.openai.com "
+                "Settings > Organization > Admin keys; project keys (sk-proj-...) "
+                "and keys minted without the api.audit_logs.read scope cannot "
+                "read audit logs",
+                exc.status_code,
+                exc,
+            )
+        raise
 
     if count:
         checkpoint.update(ckpt_key, last_effective_at=max_seen)
@@ -85,9 +100,17 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
         )
 
     if parse_bool(input_item.get("collect_users"), True):
-        count += _collect_users(
-            logger, api, checkpoint, ckpt_key, account_name, index, event_writer
-        )
+        try:
+            count += _collect_users(
+                logger, api, checkpoint, ckpt_key, account_name, index, event_writer
+            )
+        except Exception as exc:
+            logger.warning(
+                "OpenAI user directory snapshot failed: %s - audit log "
+                "collection is unaffected; the users API needs an additional "
+                "read scope on the admin key",
+                exc,
+            )
 
     return count
 
