@@ -491,9 +491,16 @@
                             "type": "text",
                             "label": "OpenAI Admin API key",
                             "field": "openai_admin_key",
-                            "help": "OpenAI organization Admin API key (sk-admin-...) with api.audit_logs.read and usage scopes.",
+                            "help": "OpenAI organization Admin API key (sk-admin-...) with api.audit_logs.read and usage scopes. Only an organization Owner can create one (platform.openai.com > Settings > Organization > Admin keys).",
                             "required": false,
-                            "encrypted": true
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^(?:sk-admin-|\\*{6}$|\\*{8}$)",
+                                    "errorMsg": "Enter an OpenAI organization Admin API key (sk-admin-...). Only an organization Owner can create one under platform.openai.com > Settings > Organization > Admin keys. Project keys (sk-proj-...) cannot read audit logs."
+                                }
+                            ]
                         },
                         {
                             "type": "text",

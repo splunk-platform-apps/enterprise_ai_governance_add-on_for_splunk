@@ -46,7 +46,7 @@ On Splunk Cloud, install as a private app (self-service app install / ACS).
 The app integrates with third-party services. Authentication methods used per provider:
 
 * **Anthropic Claude Enterprise** — API key authentication. An Admin/Compliance API key (`sk-ant-admin...`, sent as `x-api-key`) drives the activity feed and users/groups directory; an optional Analytics key with the `read:analytics` scope (sent as a `Bearer` token) enables usage, cost and adoption data.
-* **OpenAI** — API key authentication. An organization Admin API key (`sk-admin-...`, sent as a `Bearer` token) with `api.audit_logs.read` and usage scopes, created under organization settings.
+* **OpenAI** — API key authentication. An organization Admin API key (`sk-admin-...`, sent as a `Bearer` token) with `api.audit_logs.read` and usage scopes. Only an organization **Owner** can create one: platform.openai.com → **Settings → Organization → Admin keys**. Regular project keys (`sk-proj-...`) and user keys (`sk-...`) cannot read audit logs, and neither can an admin key minted without the audit-logs scope.
 * **Google Gemini (Workspace)** — OAuth 2.0 with a refresh token. Provide an OAuth client ID and client secret plus a refresh token authorized by a Workspace admin for the scope `https://www.googleapis.com/auth/admin.reports.audit.readonly`.
 * **Microsoft 365 Copilot** — OAuth 2.0 client-credentials flow against Microsoft Entra ID. Provide tenant ID, client ID and client secret for an app registration with application permissions `AuditLogsQuery.Read.All` and `Reports.Read.All` (admin consent required).
 * **Self-hosted LLM servers** — optional static API key (`Bearer` token). HTTPS with certificate verification is the default; plain HTTP is an explicit per-account opt-in for lab environments.
@@ -104,6 +104,7 @@ index=_internal source=*ta_ai_governance* (ERROR OR WARN*)
 |---|---|
 | No events at all | Input enabled? Account credentials valid? Index exists and matches the input's index setting? |
 | `401` / `403` in logs | Key type and scopes — most failures are a member key where an admin key is required, or missing admin consent (Microsoft) / admin authorization (Google) |
+| OpenAI: `Missing scopes: api.audit_logs.read` | The configured key is not an org **Admin API key**, or was created without the audit-logs scope. Have an organization **Owner** mint one (`sk-admin-...`) under **Settings → Organization → Admin keys**, then test it outside Splunk: `curl -sS "https://api.openai.com/v1/organization/audit_logs?limit=1" -H "Authorization: Bearer $KEY"` |
 | Dashboards empty but data is in the index | The `aigov_index` macro still points at its default — set it to your index |
 | Gemini input returns nothing | Reports API events can lag; confirm the refresh token was authorized by a Workspace admin for the audit-readonly scope |
 | Copilot input returns nothing | Purview auditing enabled for the tenant? Admin consent granted? Audit records can take a while to appear |
