@@ -18,17 +18,11 @@
       <choice value="microsoft">Microsoft Copilot</choice>
       <choice value="selfhosted">Self-hosted / Open-source</choice>
       <default>*</default>
-      <prefix>aigov_provider IN (</prefix>
-      <suffix>)</suffix>
       <delimiter>,</delimiter>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
     </input>
     <input type="text" token="user_tok">
       <label>User filter</label>
       <default>*</default>
-      <prefix>aigov_user="</prefix>
-      <suffix>"</suffix>
     </input>
   </fieldset>
   <row>
@@ -36,7 +30,7 @@
       <single>
         <title>Sign-in Events</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_signin_actions` | stats count</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ `aigov_signin_actions` | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -47,7 +41,7 @@
       <single>
         <title>Admin / SSO Changes</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_admin_actions` | stats count</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ `aigov_admin_actions` | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -61,7 +55,7 @@
       <single>
         <title>API Key Changes</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_key_actions` | stats count</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ `aigov_key_actions` | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -75,7 +69,7 @@
       <single>
         <title>Data Export / File Events</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_export_actions` | stats count</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ `aigov_export_actions` | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -91,7 +85,7 @@
       <chart>
         <title>Security-Relevant Events Over Time</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ | eval sec_class=case(match(aigov_action,"signed_in|login|LOGIN"),"signin", match(aigov_action,"api_key|service_account"),"key_change", match(aigov_action,"export|file_|certificates\."),"data_movement", match(aigov_action,"sso|domain|jit|role|invite|user\.|org_user|organization\."),"admin_change", true(),null()) | where isnotnull(sec_class) | timechart count by sec_class</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ | eval sec_class=case(match(aigov_action,"signed_in|login|LOGIN"),"signin", match(aigov_action,"api_key|service_account"),"key_change", match(aigov_action,"export|file_|certificates\."),"data_movement", match(aigov_action,"sso|domain|jit|role|invite|user\.|org_user|organization\."),"admin_change", true(),null()) | where isnotnull(sec_class) | timechart count by sec_class</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -104,7 +98,7 @@
       <chart>
         <title>Activity by Hour of Day (off-hours detection)</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ | eval hour=strftime(_time,"%H") | stats count by hour aigov_product | sort hour</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ | eval hour=strftime(_time,"%H") | stats count by hour aigov_product | sort hour</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -119,7 +113,7 @@
       <table>
         <title>Admin, SSO and Key Lifecycle Events</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ (`aigov_admin_actions` OR `aigov_key_actions`) | table _time aigov_product aigov_action aigov_user aigov_src_ip | sort - _time | head 50</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ (`aigov_admin_actions` OR `aigov_key_actions`) | table _time aigov_product aigov_action aigov_user aigov_src_ip | sort - _time | head 50</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -132,7 +126,7 @@
       <table>
         <title>Source IPs with Multiple Users</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ aigov_src_ip=* aigov_user=* | stats dc(aigov_user) as users values(aigov_user) as user_list count by aigov_src_ip | where users > 1 | sort - users</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_src_ip=* aigov_user=* | stats dc(aigov_user) as users values(aigov_user) as user_list count by aigov_src_ip | where users > 1 | sort - users</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -143,7 +137,7 @@
       <table>
         <title>Data Movement Detail</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ $user_tok$ `aigov_export_actions` | table _time aigov_product aigov_action aigov_user aigov_src_ip file_name | sort - _time | head 50</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=$user_tok|s$ `aigov_export_actions` | table _time aigov_product aigov_action aigov_user aigov_src_ip file_name | sort - _time | head 50</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>

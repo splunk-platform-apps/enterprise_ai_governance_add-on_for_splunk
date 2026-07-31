@@ -20,8 +20,6 @@
         <earliest>-7d@d</earliest>
         <latest>now</latest>
       </search>
-      <prefix>base_url="</prefix>
-      <suffix>"</suffix>
     </input>
   </fieldset>
   <row>
@@ -54,7 +52,7 @@
       <single>
         <title>Models Served</title>
         <search>
-          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" $server_tok$ | dedup model_id base_url | stats count</query>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" base_url=$server_tok|s$ | dedup model_id base_url | stats count</query>
           <earliest>-7d@d</earliest>
           <latest>now</latest>
         </search>
@@ -65,7 +63,7 @@
       <single>
         <title>Model Inventory Changes</title>
         <search>
-          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" $server_tok$ | stats count</query>
+          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" base_url=$server_tok|s$ | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -81,7 +79,7 @@
       <chart>
         <title>Server Availability &amp; Latency</title>
         <search>
-          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:health" $server_tok$ | timechart avg(response_time_ms) as avg_latency_ms by base_url</query>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:health" base_url=$server_tok|s$ | timechart avg(response_time_ms) as avg_latency_ms by base_url</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -93,7 +91,7 @@
       <chart>
         <title>Request / Token Counters (Prometheus)</title>
         <search>
-          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:metric" $server_tok$ | timechart span=10m max(value) as value by metric_name useother=f limit=10</query>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:metric" base_url=$server_tok|s$ | timechart span=10m max(value) as value by metric_name useother=f limit=10</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -107,7 +105,7 @@
       <table>
         <title>Model Inventory (current)</title>
         <search>
-          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" $server_tok$ | dedup model_id base_url | table model_id base_url server_type owned_by size parameter_size quantization_level snapshot_time | sort base_url model_id</query>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:model" base_url=$server_tok|s$ | dedup model_id base_url | table model_id base_url server_type owned_by size parameter_size quantization_level snapshot_time | sort base_url model_id</query>
           <earliest>-7d@d</earliest>
           <latest>now</latest>
         </search>
@@ -120,7 +118,7 @@
       <table>
         <title>Model Inventory Change Audit (added / removed)</title>
         <search>
-          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" $server_tok$ | table _time aigov_action model_id server_type source | sort - _time | head 50</query>
+          <query>`aigov_index` sourcetype="aigov:selfhosted:audit" base_url=$server_tok|s$ | table _time aigov_action model_id server_type source | sort - _time | head 50</query>
           <earliest>-30d@d</earliest>
           <latest>now</latest>
         </search>
@@ -131,7 +129,7 @@
       <table>
         <title>Currently Loaded Models (Ollama)</title>
         <search>
-          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:runtime" $server_tok$ | dedup model_id base_url | table model_id base_url size size_vram expires_at | sort base_url</query>
+          <query>`aigov_selfhosted` sourcetype="aigov:selfhosted:runtime" base_url=$server_tok|s$ | dedup model_id base_url | table model_id base_url size size_vram expires_at | sort base_url</query>
           <earliest>-4h</earliest>
           <latest>now</latest>
         </search>

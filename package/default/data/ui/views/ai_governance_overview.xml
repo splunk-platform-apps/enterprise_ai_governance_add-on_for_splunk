@@ -18,11 +18,7 @@
       <choice value="microsoft">Microsoft Copilot</choice>
       <choice value="selfhosted">Self-hosted / Open-source</choice>
       <default>*</default>
-      <prefix>aigov_provider IN (</prefix>
-      <suffix>)</suffix>
       <delimiter>,</delimiter>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
     </input>
   </fieldset>
   <row>
@@ -30,7 +26,7 @@
       <single>
         <title>Total AI Events</title>
         <search>
-          <query>`aigov_all` $provider_tok$ | stats count</query>
+          <query>`aigov_all` aigov_provider IN ($provider_tok|s$) | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -42,7 +38,7 @@
       <single>
         <title>Active AI Users</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ aigov_user=* | stats dc(aigov_user)</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=* | stats dc(aigov_user)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -53,7 +49,7 @@
       <single>
         <title>Providers Reporting</title>
         <search>
-          <query>`aigov_all` $provider_tok$ | stats dc(aigov_provider)</query>
+          <query>`aigov_all` aigov_provider IN ($provider_tok|s$) | stats dc(aigov_provider)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -67,7 +63,7 @@
       <single>
         <title>Admin / Security Changes</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ `aigov_admin_actions` | stats count</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) `aigov_admin_actions` | stats count</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -83,7 +79,7 @@
       <chart>
         <title>AI Activity Over Time by Provider</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ | timechart count by aigov_product</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) | timechart count by aigov_product</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -96,7 +92,7 @@
       <chart>
         <title>Event Volume by Provider</title>
         <search>
-          <query>`aigov_all` $provider_tok$ | stats count by aigov_product</query>
+          <query>`aigov_all` aigov_provider IN ($provider_tok|s$) | stats count by aigov_product</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -109,7 +105,7 @@
       <chart>
         <title>Daily Active Users by Provider</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ aigov_user=* | timechart span=1d dc(aigov_user) by aigov_product</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=* | timechart span=1d dc(aigov_user) by aigov_product</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -121,7 +117,7 @@
       <table>
         <title>Top Actions Across Providers</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ aigov_action=* | stats count by aigov_action aigov_product | sort - count | head 15</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_action=* | stats count by aigov_action aigov_product | sort - count | head 15</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -134,7 +130,7 @@
       <table>
         <title>Most Active Users</title>
         <search>
-          <query>`aigov_audit` $provider_tok$ aigov_user=* | stats count as events dc(aigov_action) as distinct_actions values(aigov_product) as products by aigov_user | sort - events | head 20</query>
+          <query>`aigov_audit` aigov_provider IN ($provider_tok|s$) aigov_user=* | stats count as events dc(aigov_action) as distinct_actions values(aigov_product) as products by aigov_user | sort - events | head 20</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
