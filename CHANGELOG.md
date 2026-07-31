@@ -4,17 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.3] - 2026-07-27
+
+### Added
+
+- **Documentation** and **Report an issue** links in the app navigation bar, pointing at the published documentation site and the repository issue tracker
+- Save-time format validation on the OpenAI Admin API key account field (`sk-admin-` prefix) with guidance naming the org-Owner requirement
+- Documentation: OpenAI setup states that only an organization Owner can create an Admin API key; troubleshooting covers the `Missing scopes: api.audit_logs.read` error including a curl test to verify the key outside Splunk
 
 ### Fixed
 
 - OpenAI audit input no longer aborts audit-log collection when the optional user-directory snapshot fails (for example on a missing scope); it logs a warning and keeps ingesting audit events
 - OpenAI audit input now logs an actionable remediation message on HTTP 401/403, naming the organization Admin API key (`sk-admin-...`) and org-Owner requirement
-
-### Added
-
-- Save-time format validation on the OpenAI Admin API key account field (`sk-admin-` prefix) with guidance naming the org-Owner requirement
-- Documentation: OpenAI setup states that only an organization Owner can create an Admin API key; troubleshooting covers the `Missing scopes: api.audit_logs.read` error including a curl test to verify the key outside Splunk
 
 ## [1.0.2] - 2026-07-21
 
