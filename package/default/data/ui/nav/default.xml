@@ -7,5 +7,7 @@
     <view name="ai_usage_cost"/>
     <view name="ai_selfhosted"/>
     <view name="ai_compliance"/>
+    <a href="https://splunk-platform-apps.github.io/enterprise_ai_governance_add-on_for_splunk/" target="_blank">Documentation</a>
+    <a href="https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/issues" target="_blank">Report an issue</a>
     <view name="search"/>
 </nav>
