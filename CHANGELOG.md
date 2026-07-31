@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.4] - 2026-07-31
+
+### Fixed
+
+- **Security**: every dashboard filter input is now escaped before it is interpolated into SPL. The **User filter** on *AI Security Audit*, the **Server** selector on *Self-Hosted & Open-Source Models*, and the **Provider** selector on *AI Security Audit*, *AI Governance Overview* and *AI Usage & Cost* previously supplied their own quotes via input `prefix`/`suffix`/`valuePrefix`/`valueSuffix`, so a value containing a double quote could terminate the intended `aigov_user="…"` / `base_url="…"` / `aigov_provider IN ("…")` term and append arbitrary search syntax. The quoting now lives in the queries and goes through the `|s` token filter, which escapes embedded quotes. Filtering behaviour is unchanged for ordinary values, wildcards and multi-provider selections.
+
 ## [1.0.3] - 2026-07-27
 
 ### Added

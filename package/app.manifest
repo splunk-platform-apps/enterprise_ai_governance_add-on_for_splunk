@@ -27,7 +27,7 @@
         "id": {
             "group": null,
             "name": "TA-ai-governance",
-            "version": "1.0.3"
+            "version": "1.0.4"
         },
         "license": {
             "name": "Apache-2.0",
