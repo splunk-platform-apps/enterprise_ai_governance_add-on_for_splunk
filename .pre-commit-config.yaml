@@ -20,7 +20,7 @@ repos:
 
     # Python linting and formatting
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.15.20'
+    rev: 'v0.16.0'
     hooks:
     # Run the linter.
     -   id: ruff-check
@@ -35,7 +35,7 @@ repos:
 
     # Check code for security issues, bugs, and bad patterns
 -   repo: https://github.com/returntocorp/semgrep
-    rev: v1.168.0
+    rev: v1.172.0
     hooks:
     -   id: semgrep
 
