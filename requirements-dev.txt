@@ -1,1 +1,3 @@
 splunk-add-on-ucc-framework==6.5.2
+# 8.4.x is the last line supporting Python 3.9, the floor of the org CI matrix
+pytest==8.4.2

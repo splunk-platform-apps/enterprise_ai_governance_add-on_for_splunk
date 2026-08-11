@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - OpenAI audit input no longer aborts audit-log collection when the optional user-directory snapshot fails (for example on a missing scope); it logs a warning and keeps ingesting audit events
 - OpenAI audit input now logs an actionable remediation message on HTTP 401/403, naming the organization Admin API key (`sk-admin-...`) and org-Owner requirement
+- Outbound requests to the Anthropic, OpenAI, Google and Microsoft APIs now report the add-on's real version in the `User-Agent` header; it was pinned at `1.0.2` while the rest of the add-on had moved on
 
 ## [1.0.2] - 2026-07-21
 
