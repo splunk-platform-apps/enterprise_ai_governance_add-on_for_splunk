@@ -16,7 +16,10 @@ app.manifest is the source of truth because org CI reads it with
 Runs two ways, so it needs no third-party imports:
 
     pytest tests/
-    python3 tests/test_version_sync.py    # how pre-commit and CI call it
+    python3 tests/test_version_sync.py    # how the pre-commit hook calls it
+
+Org CI runs ``pre-commit run --all-files`` on every pull request, so the hook
+is the gate; nothing here may depend on anything outside the standard library.
 """
 
 import ast
