@@ -9,6 +9,11 @@ dashboards and correlation searches work across providers:
 - ``aigov_action``:   provider event/action type when applicable
 - ``aigov_user``:     acting user (email / UPN) when applicable
 - ``aigov_src_ip``:   source IP when applicable
+
+Compliance Logs records carry two extra fields:
+
+- ``aigov_log_type``: the Compliance Logs Platform ``event_type``
+- ``aigov_content_redacted``: true when prompt/response text was stripped
 """
 
 from __future__ import annotations
@@ -92,6 +97,158 @@ def normalize_openai_audit(record: Dict[str, Any]) -> Dict[str, Any]:
         action=record.get("type"),
         user=flat.get("actor_email"),
         src_ip=flat.get("actor_ip_address"),
+    )
+
+
+# Keys whose values may carry prompt or response text. Used to strip content
+# from Compliance Logs records when an input is configured for metadata only.
+_CONTENT_KEYS = frozenset(
+    (
+        "arguments",
+        "attachments",
+        "body",
+        "completion",
+        "content",
+        "conversation",
+        "input",
+        "message",
+        "messages",
+        "output",
+        "parts",
+        "prompt",
+        "prompts",
+        "response",
+        "responses",
+        "text",
+    )
+)
+
+_REDACTED = "[redacted by TA-ai-governance]"
+_MAX_REDACT_DEPTH = 12
+
+
+def redact_content(value: Any, _depth: int = 0, _under_content: bool = False) -> Any:
+    """Recursively replace prompt/response *text* with a redaction marker.
+
+    Only leaf strings are redacted; containers are walked rather than
+    dropped. Replacing a whole ``conversation`` or ``messages`` object would
+    also discard its conversation id, message roles and timestamps, which is
+    exactly the metadata a governance search needs once the text is gone.
+
+    Redacted strings under a named key keep a ``<key>_chars`` sibling so that
+    volume signals (a user pasting 40 KB into a chat) still work without the
+    content itself ever reaching the index.
+    """
+    if _depth >= _MAX_REDACT_DEPTH:
+        # Fail closed: an unexpectedly deep structure under a content key is
+        # dropped rather than passed through unredacted.
+        return _REDACTED if _under_content else value
+
+    if isinstance(value, str):
+        # Reached only for bare strings inside a content container, e.g.
+        # {"parts": ["some prompt text"]}.
+        return _REDACTED if _under_content else value
+    if isinstance(value, list):
+        return [redact_content(item, _depth + 1, _under_content) for item in value]
+    if not isinstance(value, dict):
+        return value
+
+    result = {}
+    for key, item in value.items():
+        is_content = key.lower() in _CONTENT_KEYS
+        if is_content and isinstance(item, str):
+            result[key] = _REDACTED
+            result["%s_chars" % key] = len(item)
+        else:
+            result[key] = redact_content(item, _depth + 1, is_content)
+    return result
+
+
+def _compliance_category(event_type: Optional[str]) -> str:
+    """Map a Compliance Logs event_type onto the shared category taxonomy.
+
+    Matching is by substring rather than a fixed table: the event_type enum
+    is workspace-specific and documented only behind the authenticated
+    Enterprise API reference, so an unknown type must still land somewhere
+    sensible instead of being dropped.
+    """
+    name = (event_type or "").upper()
+    if any(token in name for token in ("CONVERSATION", "MESSAGE", "CHAT", "PROMPT")):
+        return "interaction"
+    if "USAGE" in name:
+        return "usage"
+    return "audit"
+
+
+def normalize_openai_compliance(
+    record: Dict[str, Any],
+    event_type: str,
+    include_content: bool = False,
+) -> Dict[str, Any]:
+    """Flatten one JSONL record from the Compliance Logs Platform."""
+    flat = dict(record)
+    actor = record.get("actor") if isinstance(record.get("actor"), dict) else {}
+    user = record.get("user") if isinstance(record.get("user"), dict) else {}
+
+    flat.setdefault(
+        "actor_email",
+        _first(
+            record.get("user_email"),
+            record.get("email"),
+            actor.get("email"),
+            user.get("email"),
+        ),
+    )
+    flat.setdefault(
+        "actor_user_id",
+        _first(record.get("user_id"), actor.get("id"), user.get("id")),
+    )
+    flat.setdefault(
+        "actor_ip_address",
+        _first(
+            record.get("ip_address"),
+            record.get("client_ip"),
+            record.get("source_ip"),
+            actor.get("ip_address"),
+        ),
+    )
+
+    if not include_content:
+        flat = redact_content(flat)
+        flat["aigov_content_redacted"] = True
+
+    # The event_type comes from the request, not the record, so it is always
+    # present even when a record carries no type of its own.
+    flat["aigov_log_type"] = event_type
+
+    event = envelope(
+        flat,
+        provider="openai",
+        category=_compliance_category(event_type),
+        action=_first(
+            record.get("event_type"),
+            record.get("type"),
+            record.get("action"),
+            event_type,
+        ),
+        user=flat.get("actor_email"),
+        src_ip=flat.get("actor_ip_address"),
+    )
+    # Same provider, different product: these records come from ChatGPT
+    # Enterprise, not the API platform that aigov:openai:audit reports on.
+    # Provider stays "openai" so existing provider-scoped panels still match.
+    event["aigov_product"] = "OpenAI ChatGPT Enterprise"
+    return event
+
+
+def compliance_event_time(record: Dict[str, Any]) -> Any:
+    """Best-effort event timestamp for a Compliance Logs record."""
+    return _first(
+        record.get("timestamp"),
+        record.get("event_time"),
+        record.get("created_at"),
+        record.get("time"),
+        record.get("end_time"),
     )
 
 

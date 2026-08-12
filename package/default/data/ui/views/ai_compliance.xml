@@ -111,6 +111,46 @@
   </row>
   <row>
     <panel>
+      <chart>
+        <title>ChatGPT Enterprise Compliance Logs by Type</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:openai:compliance" | timechart count by aigov_log_type</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <single>
+        <title>Compliance Records With Content Redacted</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:openai:compliance" | stats count as total, count(eval(aigov_content_redacted="true")) as redacted | eval pct=if(total&gt;0, round(redacted*100/total, 0), 0) | fields pct</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">%</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Most Active ChatGPT Enterprise Users</title>
+        <search>
+          <query>`aigov_index` sourcetype="aigov:openai:compliance" aigov_user=* | stats count as events, dc(aigov_log_type) as log_types, latest(_time) as last_seen by aigov_user | convert ctime(last_seen) | sort - events | head 20</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <table>
         <title>Compliance-Relevant Events (exports, retention, policy)</title>
         <search>

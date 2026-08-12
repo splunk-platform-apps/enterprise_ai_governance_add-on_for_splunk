@@ -13,6 +13,8 @@ _ACCOUNT_FIELDS = (
     "anthropic_admin_key",
     "anthropic_analytics_key",
     "openai_admin_key",
+    "openai_compliance_key",
+    "openai_compliance_principal_id",
     "google_client_id",
     "google_client_secret",
     "google_refresh_token",

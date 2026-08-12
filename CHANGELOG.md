@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2026-08-12
+
+### Added
+
+- New `openai_compliance` modular input collecting ChatGPT Enterprise compliance logs from the OpenAI Compliance Logs Platform (`api.chatgpt.com`), covering end-user activity that the platform audit log does not report
+- **OpenAI Compliance API key** and **OpenAI workspace / organization ID** account fields, separate from the platform Admin API key because the Compliance API uses a different credential, host and entitlement
+- New `aigov:openai:compliance` sourcetype, included in the `aigov_audit` macro; its records carry `aigov_log_type` and `aigov_content_redacted`
+- Three panels on the AI Compliance & Directory dashboard: ChatGPT Enterprise Compliance Logs by Type, Compliance Records With Content Redacted, Most Active ChatGPT Enterprise Users
+- Documentation: Compliance API credential requirements, event-type configuration, content-redaction behavior, and troubleshooting for compliance-input auth failures and skipped event types
+
+### Changed
+
+- Renamed the `openai_audit` input label to **OpenAI Platform Audit Logs** so the two OpenAI log sources are distinguishable in the Create New Input menu; the input name and existing configurations are unchanged
+- Compliance log message content is redacted by default — prompt and response text is replaced with a marker and a character count, preserving message roles, ids and timestamps, unless **Index full message content** is enabled on the input
+
+### Fixed
+
+- Provider credentials are no longer forwarded across a cross-host HTTP redirect; the compliance log download redirects to signed object storage, so `Authorization` and `x-api-key` headers are now stripped when the redirect target host differs. Applies to every provider client, not just the new input
+
 ## [1.0.4] - 2026-07-31
 
 ### Fixed
@@ -19,11 +38,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Save-time format validation on the OpenAI Admin API key account field (`sk-admin-` prefix) with guidance naming the org-Owner requirement
 - Documentation: OpenAI setup states that only an organization Owner can create an Admin API key; troubleshooting covers the `Missing scopes: api.audit_logs.read` error including a curl test to verify the key outside Splunk
 
+### Changed
+
+- App label is now **Enterprise AI Governance Add-on for Splunk** in `app.conf`, `app.manifest` and `globalConfig.json` (previously "App for Splunk"), so the navigation title matches the "Add-on" name used everywhere else in the product and documentation
+
 ### Fixed
 
 - OpenAI audit input no longer aborts audit-log collection when the optional user-directory snapshot fails (for example on a missing scope); it logs a warning and keeps ingesting audit events
 - OpenAI audit input now logs an actionable remediation message on HTTP 401/403, naming the organization Admin API key (`sk-admin-...`) and org-Owner requirement
 - Outbound requests to the Anthropic, OpenAI, Google and Microsoft APIs now report the add-on's real version in the `User-Agent` header; it was pinned at `1.0.2` while the rest of the add-on had moved on
+- Dashboard names in the 1.0.1 entry below corrected to the labels the dashboards actually ship with
 
 ## [1.0.2] - 2026-07-21
 
@@ -43,5 +67,5 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Initial multi-provider release of the AI Governance Add-on for Splunk (`TA-ai-governance`), superseding the earlier single-provider Anthropic Claude Enterprise add-on
 - Modular inputs for Anthropic Claude Enterprise (compliance activity feed, directory, analytics), OpenAI (organization audit logs, usage and costs), Google Gemini Workspace (Admin SDK Reports audit events), Microsoft 365 Copilot (Purview audit records, usage reports) and self-hosted LLM servers (vLLM, Ollama, LiteLLM, OpenAI-compatible)
 - Normalized `aigov_*` event schema, `aigov_index` macro family, event types and tags
-- Five dashboards (Overview, Security Audit, Usage & Cost, Self-Hosted AI, Compliance) and eight ready-to-enable alerts
+- Five dashboards (AI Governance Overview, AI Security Audit, AI Usage & Cost Monitoring, Self-Hosted & Open-Source Models, AI Compliance & Directory) and eight ready-to-enable alerts
 - KV Store checkpointing (`ta_ai_governance_checkpoints`) and encrypted credential storage via UCC
