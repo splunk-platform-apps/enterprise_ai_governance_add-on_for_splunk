@@ -1,0 +1,24 @@
+# Ruff configuration for the Enterprise AI Governance Add-on.
+#
+# Both settings below are load-bearing; neither is a style preference.
+#
+# target-version pins the syntax ruff is allowed to emit. Without it ruff
+# assumes Python 3.10, but org CI builds this add-on on a 3.9 / 3.13 matrix and
+# it runs on whatever interpreter Splunk bundles. An unpinned ruff can rewrite
+# `Optional[X]` to `X | None` (UP045) or `Dict[str, Any]` to `dict[...]`
+# (UP006), which raise TypeError at runtime on 3.9 in any annotation that is
+# actually evaluated. Keep this at the floor of the CI matrix.
+#
+# lint.select freezes the rule set to the one this codebase is known to pass.
+# Ruff enables rules by default and changes that default between releases, so
+# without an explicit list a routine version bump silently becomes a repo-wide
+# refactor: v0.16.0 switched on pyupgrade, isort, blind-except, bandit and
+# flake8-simplify, surfacing 183 findings in code nobody had touched. Pinning
+# the list keeps "upgrade the tool" and "adopt new rules" as separate, reviewed
+# decisions. To adopt a family, add it here and land the fixes in the same PR.
+
+target-version = "py39"
+
+[lint]
+# Ruff's long-standing default: pycodestyle errors (E4/E7/E9) and Pyflakes (F).
+select = ["E4", "E7", "E9", "F"]
