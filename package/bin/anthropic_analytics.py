@@ -8,7 +8,7 @@ from anthropic_analytics_helper import stream_events, validate_input
 
 class ANTHROPIC_ANALYTICS(smi.Script):
     def __init__(self):
-        super(ANTHROPIC_ANALYTICS, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("anthropic_analytics")

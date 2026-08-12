@@ -8,7 +8,7 @@ from selfhosted_monitor_helper import stream_events, validate_input
 
 class SELFHOSTED_MONITOR(smi.Script):
     def __init__(self):
-        super(SELFHOSTED_MONITOR, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("selfhosted_monitor")

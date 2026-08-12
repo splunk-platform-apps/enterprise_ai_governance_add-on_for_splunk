@@ -8,7 +8,8 @@ https://admin.googleapis.com/admin/reports/v1.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from ai_governance import GOOGLE_REPORTS_BASE, GOOGLE_TOKEN_URL
 from ai_governance.http_client import APIError, JsonHttpClient
@@ -47,16 +48,13 @@ class GoogleReportsAPI:
     def list_activities(
         self,
         application_name: str,
-        start_time: Optional[str] = None,
-        customer_id: Optional[str] = None,
-        max_items: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+        start_time: str | None = None,
+        customer_id: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[dict[str, Any]]:
         """Iterate audit activity items (ascending is not supported; the API
         returns newest first, so callers checkpoint on max event time)."""
-        url = "%s/admin/reports/v1/activity/users/all/applications/%s" % (
-            GOOGLE_REPORTS_BASE,
-            application_name,
-        )
+        url = f"{GOOGLE_REPORTS_BASE}/admin/reports/v1/activity/users/all/applications/{application_name}"
         params = {"maxResults": MAX_PAGE_SIZE}
         if start_time:
             params["startTime"] = start_time
@@ -64,7 +62,7 @@ class GoogleReportsAPI:
             params["customerId"] = customer_id
         collected = 0
         while True:
-            headers = {"Authorization": "Bearer %s" % self._token()}
+            headers = {"Authorization": f"Bearer {self._token()}"}
             response = self._client.get_json(url, headers=headers, params=params)
             for item in response.get("items", []):
                 yield item

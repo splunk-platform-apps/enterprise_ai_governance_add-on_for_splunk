@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
-from typing import Any, Dict
+from datetime import date, datetime, timedelta, timezone
+from typing import Any
 
 from splunklib import modularinput as smi
 
@@ -56,7 +56,12 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     # Analytics data is finalized with a delay; collect through yesterday.
     # Each collector resumes from its own checkpoint so a given day is
     # ingested exactly once (re-pulling the window would multiply sums).
-    ending = date.today() - timedelta(days=1)
+    #
+    # UTC, not the search head's local date: the API reports days in UTC, and
+    # the checkpoint below advances past `ending` unconditionally. On a server
+    # ahead of UTC a local "yesterday" can still be today in UTC, so the run
+    # would ingest a partial day, checkpoint past it and never backfill it.
+    ending = datetime.now(timezone.utc).date() - timedelta(days=1)
     default_start = ending - timedelta(days=lookback_days - 1)
     ending_date = ending.isoformat()
 
@@ -94,8 +99,8 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                     payload=payload,
                     index=index,
                     sourcetype=sourcetype,
-                    source="anthropic:analytics:%s" % account_name,
-                    event_time="%sT00:00:00Z" % event_date
+                    source=f"anthropic:analytics:{account_name}",
+                    event_time=f"{event_date}T00:00:00Z"
                     if len(str(event_date)) == 10
                     else event_date,
                 )
@@ -107,16 +112,16 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 "Anthropic analytics %s collection failed: %s", category, exc
             )
             continue
-        checkpoint.update(ckpt_key, **{"last_ending_%s" % category: ending_date})
+        checkpoint.update(ckpt_key, **{f"last_ending_{category}": ending_date})
 
     logger.info("Ingested %s Anthropic analytics records", count)
     return count
 
 
-def _resume_date(state: Dict[str, Any], category: str, default_start: date) -> date:
+def _resume_date(state: dict[str, Any], category: str, default_start: date) -> date:
     """Day after the last day this collector ingested, floored at the
     lookback default. Falls back to the legacy shared key if present."""
-    last = state.get("last_ending_%s" % category) or state.get("last_ending_date")
+    last = state.get(f"last_ending_{category}") or state.get("last_ending_date")
     if last:
         try:
             resumed = date.fromisoformat(str(last)) + timedelta(days=1)

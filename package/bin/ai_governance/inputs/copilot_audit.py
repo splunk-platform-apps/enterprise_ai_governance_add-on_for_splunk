@@ -104,7 +104,7 @@ def _submit_query(logger, api, checkpoint, ckpt_key, state, input_item) -> int:
         return 0
 
     window_end = min(window_start + MAX_WINDOW, window_end_limit)
-    display_name = "TA-ai-governance %s" % _iso(now)
+    display_name = f"TA-ai-governance {_iso(now)}"
 
     query = api.create_audit_query(
         display_name=display_name,
@@ -166,7 +166,7 @@ def _handle_pending_query(
             payload=normalized,
             index=index,
             sourcetype=ST_COPILOT_INTERACTION,
-            source="aigov:copilot:audit:%s" % account_name,
+            source=f"aigov:copilot:audit:{account_name}",
             event_time=record.get("createdDateTime"),
         )
         count += 1
