@@ -71,7 +71,7 @@ def _fallback_version():
         for target in node.targets:
             if isinstance(target, ast.Name) and target.id == "_FALLBACK_VERSION":
                 return ast.literal_eval(node.value)
-    raise AssertionError("no _FALLBACK_VERSION assignment in %s" % CONSTANTS)
+    raise AssertionError(f"no _FALLBACK_VERSION assignment in {CONSTANTS}")
 
 
 def _changelog_version():
@@ -80,7 +80,7 @@ def _changelog_version():
             match = CHANGELOG_HEADING.match(line)
             if match:
                 return match.group(1)
-    raise AssertionError("no '## [x.y.z]' release heading in %s" % CHANGELOG)
+    raise AssertionError(f"no '## [x.y.z]' release heading in {CHANGELOG}")
 
 
 def test_version_locations_agree():
@@ -94,11 +94,11 @@ def test_version_locations_agree():
         "CHANGELOG.md newest release heading": _changelog_version(),
     }
     drifted = [
-        "%s = %s" % (where, value)
+        f"{where} = {value}"
         for where, value in sorted(found.items())
         if value != expected
     ]
-    assert not drifted, "package/app.manifest says %s, but %s" % (
+    assert not drifted, "package/app.manifest says {}, but {}".format(
         expected,
         "; ".join(drifted),
     )
@@ -123,11 +123,11 @@ def _main():
         try:
             check()
         except AssertionError as exc:
-            print("%s: %s" % (check.__name__, exc), file=sys.stderr)
+            print(f"{check.__name__}: {exc}", file=sys.stderr)
             failures += 1
     if failures:
         return 1
-    print("version sync OK: %s" % _manifest_version())
+    print(f"version sync OK: {_manifest_version()}")
     return 0
 
 

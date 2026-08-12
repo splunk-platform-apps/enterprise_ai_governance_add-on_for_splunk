@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
+- Anthropic Analytics input now derives its collection window from the current UTC date instead of the search head's local date. On a Splunk instance running ahead of UTC, the local "yesterday" could still be the current day in UTC, so the input ingested a partial day, advanced its checkpoint past it and never backfilled it — permanently undercounting usage and cost totals for that day. Instances at or behind UTC were unaffected apart from collecting slightly later in the day.
 - **Security**: every dashboard filter input is now escaped before it is interpolated into SPL. The **User filter** on *AI Security Audit*, the **Server** selector on *Self-Hosted & Open-Source Models*, and the **Provider** selector on *AI Security Audit*, *AI Governance Overview* and *AI Usage & Cost* previously supplied their own quotes via input `prefix`/`suffix`/`valuePrefix`/`valueSuffix`, so a value containing a double quote could terminate the intended `aigov_user="…"` / `base_url="…"` / `aigov_provider IN ("…")` term and append arbitrary search syntax. The quoting now lives in the queries and goes through the `|s` token filter, which escapes embedded quotes. Filtering behaviour is unchanged for ordinary values, wildcards and multi-provider selections.
 
 ## [1.0.3] - 2026-07-27
