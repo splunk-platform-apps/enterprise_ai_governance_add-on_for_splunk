@@ -8,7 +8,7 @@ ADDON_NAME = "TA-ai-governance"
 
 # Only reached when app.manifest cannot be read; tests/test_version_sync.py
 # keeps it level with the manifest, globalConfig.json, app.conf and CHANGELOG.
-_FALLBACK_VERSION = "1.0.4"
+_FALLBACK_VERSION = "1.1.0"
 
 # Deliberately narrow - this value goes out in an HTTP header.
 _VERSION_RE = re.compile(r"^[0-9A-Za-z.+-]{1,32}$")
@@ -70,6 +70,11 @@ ST_OPENAI_AUDIT = "aigov:openai:audit"
 ST_OPENAI_USER = "aigov:openai:user"
 ST_OPENAI_USAGE = "aigov:openai:usage"
 ST_OPENAI_COST = "aigov:openai:cost"
+# ChatGPT Enterprise Compliance Logs Platform. One sourcetype covers every
+# event_type the platform exposes; the per-record ``aigov_log_type`` field
+# carries the event type, because the event_type enum is workspace-specific
+# and documented only behind an authenticated Enterprise API reference.
+ST_OPENAI_COMPLIANCE = "aigov:openai:compliance"
 
 ST_GEMINI_AUDIT = "aigov:gemini:audit"
 
@@ -86,6 +91,9 @@ ST_SELFHOSTED_HEALTH = "aigov:selfhosted:health"
 ANTHROPIC_API_BASE = "https://api.anthropic.com"
 ANTHROPIC_VERSION = "2023-06-01"
 OPENAI_API_BASE = "https://api.openai.com"
+# The ChatGPT Enterprise Compliance API is a different host and a different
+# credential from the platform Admin API above.
+OPENAI_COMPLIANCE_API_BASE = "https://api.chatgpt.com/v1/compliance"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_REPORTS_BASE = "https://admin.googleapis.com"
 MS_LOGIN_BASE = "https://login.microsoftonline.com"

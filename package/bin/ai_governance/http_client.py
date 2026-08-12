@@ -32,6 +32,35 @@ class APIError(Exception):
         self.response_body = response_body
 
 
+# Headers that must never survive a redirect to a different host.
+_CREDENTIAL_HEADERS = ("authorization", "x-api-key", "proxy-authorization")
+
+
+class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Redirect handler that drops credentials when the host changes.
+
+    ``urllib`` copies every non-content header onto the redirected request,
+    so a 302 from an API host to a signed object-storage URL would forward
+    the provider API key to that third-party host. Signed URLs also reject
+    requests that carry both a signature and an ``Authorization`` header, so
+    stripping is required for correctness as well as for safety.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new_request = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new_request is None:
+            return None
+        old_host = urllib.parse.urlsplit(req.full_url).netloc.lower()
+        new_host = urllib.parse.urlsplit(newurl).netloc.lower()
+        if old_host != new_host:
+            for header in _CREDENTIAL_HEADERS:
+                new_request.headers.pop(header.capitalize(), None)
+                new_request.headers.pop(header.title(), None)
+                new_request.unredirected_hdrs.pop(header.capitalize(), None)
+                new_request.unredirected_hdrs.pop(header.title(), None)
+        return new_request
+
+
 class JsonHttpClient:
     """HTTPS client for provider REST APIs."""
 
@@ -46,8 +75,10 @@ class JsonHttpClient:
 
     def _opener(self):
         if self._proxy_handler:
-            return urllib.request.build_opener(self._proxy_handler)
-        return urllib.request.build_opener()
+            return urllib.request.build_opener(
+                self._proxy_handler, _SafeRedirectHandler()
+            )
+        return urllib.request.build_opener(_SafeRedirectHandler())
 
     def request_json(
         self,
