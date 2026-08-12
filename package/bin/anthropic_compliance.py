@@ -8,7 +8,7 @@ from anthropic_compliance_helper import stream_events, validate_input
 
 class ANTHROPIC_COMPLIANCE(smi.Script):
     def __init__(self):
-        super(ANTHROPIC_COMPLIANCE, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("anthropic_compliance")

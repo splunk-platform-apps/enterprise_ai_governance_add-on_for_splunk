@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from ai_governance import OPENAI_API_BASE
 from ai_governance.http_client import JsonHttpClient
@@ -16,7 +17,7 @@ class OpenAIAPI:
         self._admin_key = admin_key
 
     def _headers(self):
-        return {"Authorization": "Bearer %s" % self._admin_key}
+        return {"Authorization": f"Bearer {self._admin_key}"}
 
     def _get(self, path, params=None):
         return self._client.get_json(
@@ -26,9 +27,9 @@ class OpenAIAPI:
     def paginate(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
-        max_items: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+        params: dict[str, Any] | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[dict[str, Any]]:
         """Cursor pagination using after / has_more / last_id."""
         query = dict(params or {})
         query.setdefault("limit", min(MAX_PAGE_SIZE, max_items or MAX_PAGE_SIZE))
@@ -68,8 +69,7 @@ class OpenAIAPI:
         query = dict(params or {})
         while True:
             response = self._get(path, params=query)
-            for bucket in response.get("data", []):
-                yield bucket
+            yield from response.get("data", [])
             next_page = response.get("next_page")
             if not (response.get("has_more") and next_page):
                 return

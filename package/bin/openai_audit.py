@@ -8,7 +8,7 @@ from openai_audit_helper import stream_events, validate_input
 
 class OPENAI_AUDIT(smi.Script):
     def __init__(self):
-        super(OPENAI_AUDIT, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("openai_audit")

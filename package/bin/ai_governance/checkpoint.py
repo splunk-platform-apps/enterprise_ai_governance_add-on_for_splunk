@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from solnlib.modular_input import checkpointer
 
@@ -19,16 +19,16 @@ class CheckpointStore:
             ADDON_NAME,
         )
 
-    def get(self, input_key: str) -> Dict[str, Any]:
+    def get(self, input_key: str) -> dict[str, Any]:
         state = self._checkpointer.get(input_key)
         if isinstance(state, dict):
             return state
         return {}
 
-    def set(self, input_key: str, state: Dict[str, Any]) -> None:
+    def set(self, input_key: str, state: dict[str, Any]) -> None:
         self._checkpointer.update(input_key, state)
 
-    def update(self, input_key: str, **fields: Any) -> Dict[str, Any]:
+    def update(self, input_key: str, **fields: Any) -> dict[str, Any]:
         state = self.get(input_key)
         state.update(fields)
         self.set(input_key, state)

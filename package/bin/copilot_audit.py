@@ -8,7 +8,7 @@ from copilot_audit_helper import stream_events, validate_input
 
 class COPILOT_AUDIT(smi.Script):
     def __init__(self):
-        super(COPILOT_AUDIT, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("copilot_audit")

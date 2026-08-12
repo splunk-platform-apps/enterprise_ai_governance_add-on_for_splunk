@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import Any, Dict, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from ai_governance import ANTHROPIC_API_BASE, ANTHROPIC_VERSION
 from ai_governance.http_client import JsonHttpClient
@@ -11,14 +12,14 @@ from ai_governance.http_client import JsonHttpClient
 MAX_PAGE_SIZE = 100
 
 
-def _report_range_params(starting_date: str, ending_date: str) -> Dict[str, str]:
+def _report_range_params(starting_date: str, ending_date: str) -> dict[str, str]:
     """Params for the usage_report / cost_report endpoints, which take
     RFC 3339 timestamps with an exclusive ``ending_at`` (unlike summaries,
     which takes plain ``starting_date`` / ``ending_date``)."""
     ending_next = date.fromisoformat(ending_date) + timedelta(days=1)
     return {
-        "starting_at": "%sT00:00:00Z" % starting_date,
-        "ending_at": "%sT00:00:00Z" % ending_next.isoformat(),
+        "starting_at": f"{starting_date}T00:00:00Z",
+        "ending_at": f"{ending_next.isoformat()}T00:00:00Z",
         "bucket_width": "1d",
     }
 
@@ -37,7 +38,7 @@ class AnthropicAPI:
 
     def _analytics_headers(self):
         return {
-            "Authorization": "Bearer %s" % self._analytics_key,
+            "Authorization": f"Bearer {self._analytics_key}",
             "anthropic-version": ANTHROPIC_VERSION,
         }
 
@@ -51,11 +52,11 @@ class AnthropicAPI:
     def paginate(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         data_key: str = "data",
-        max_items: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Iterator[Dict[str, Any]]:
+        max_items: int | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> Iterator[dict[str, Any]]:
         """Cursor pagination using after_id / has_more / last_id."""
         query = dict(params or {})
         query.setdefault("limit", min(MAX_PAGE_SIZE, max_items or MAX_PAGE_SIZE))
@@ -107,8 +108,7 @@ class AnthropicAPI:
             )
             items = response.get("data", [])
             if isinstance(items, list):
-                for item in items:
-                    yield item
+                yield from items
             next_page = response.get("next_page")
             if not next_page:
                 return

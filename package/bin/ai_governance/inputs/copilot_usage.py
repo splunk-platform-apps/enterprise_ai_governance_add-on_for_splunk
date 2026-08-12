@@ -72,13 +72,13 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
         )
         event_time = None
         if row.get("reportRefreshDate"):
-            event_time = "%sT00:00:00Z" % row["reportRefreshDate"]
+            event_time = "{}T00:00:00Z".format(row["reportRefreshDate"])
         write_json_event(
             event_writer=event_writer,
             payload=payload,
             index=index,
             sourcetype=ST_COPILOT_USAGE,
-            source="aigov:copilot:usage:%s" % account_name,
+            source=f"aigov:copilot:usage:{account_name}",
             event_time=event_time,
         )
         count += 1

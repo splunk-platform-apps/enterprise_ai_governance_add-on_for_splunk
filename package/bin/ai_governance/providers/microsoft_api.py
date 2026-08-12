@@ -9,7 +9,8 @@ Used for:
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from ai_governance import MS_GRAPH_BASE, MS_LOGIN_BASE
 from ai_governance.http_client import APIError, JsonHttpClient
@@ -28,7 +29,7 @@ class MicrosoftGraphAPI:
         if self._access_token and time.time() < self._token_expiry - 60:
             return self._access_token
         response = self._client.post_form(
-            "%s/%s/oauth2/v2.0/token" % (MS_LOGIN_BASE, self._tenant_id),
+            f"{MS_LOGIN_BASE}/{self._tenant_id}/oauth2/v2.0/token",
             {
                 "client_id": self._client_id,
                 "client_secret": self._client_secret,
@@ -44,7 +45,7 @@ class MicrosoftGraphAPI:
         return token
 
     def _headers(self):
-        return {"Authorization": "Bearer %s" % self._token()}
+        return {"Authorization": f"Bearer {self._token()}"}
 
     def _get(self, url, params=None):
         return self._client.get_json(url, headers=self._headers(), params=params)
@@ -55,8 +56,8 @@ class MicrosoftGraphAPI:
         display_name: str,
         start_iso: str,
         end_iso: str,
-        record_types: List[str],
-    ) -> Dict[str, Any]:
+        record_types: list[str],
+    ) -> dict[str, Any]:
         body = {
             "displayName": display_name,
             "filterStartDateTime": start_iso,
@@ -64,24 +65,19 @@ class MicrosoftGraphAPI:
             "recordTypeFilters": record_types,
         }
         return self._client.post_json(
-            "%s/v1.0/security/auditLog/queries" % MS_GRAPH_BASE,
+            f"{MS_GRAPH_BASE}/v1.0/security/auditLog/queries",
             headers=self._headers(),
             json_body=body,
         )
 
-    def get_audit_query(self, query_id: str) -> Dict[str, Any]:
-        return self._get(
-            "%s/v1.0/security/auditLog/queries/%s" % (MS_GRAPH_BASE, query_id)
-        )
+    def get_audit_query(self, query_id: str) -> dict[str, Any]:
+        return self._get(f"{MS_GRAPH_BASE}/v1.0/security/auditLog/queries/{query_id}")
 
     def iter_audit_records(
-        self, query_id: str, max_items: Optional[int] = None
-    ) -> Iterator[Dict[str, Any]]:
-        url = "%s/v1.0/security/auditLog/queries/%s/records" % (
-            MS_GRAPH_BASE,
-            query_id,
-        )
-        params: Optional[Dict[str, Any]] = {"$top": 500}
+        self, query_id: str, max_items: int | None = None
+    ) -> Iterator[dict[str, Any]]:
+        url = f"{MS_GRAPH_BASE}/v1.0/security/auditLog/queries/{query_id}/records"
+        params: dict[str, Any] | None = {"$top": 500}
         collected = 0
         while url:
             response = self._get(url, params=params)
@@ -94,13 +90,10 @@ class MicrosoftGraphAPI:
             url = response.get("@odata.nextLink")
 
     # -- Copilot usage reports ---------------------------------------------
-    def copilot_usage_user_detail(self, period: str = "D7") -> List[Dict[str, Any]]:
-        url = "%s/v1.0/reports/getMicrosoft365CopilotUsageUserDetail(period='%s')" % (
-            MS_GRAPH_BASE,
-            period,
-        )
-        rows: List[Dict[str, Any]] = []
-        params: Optional[Dict[str, Any]] = {"$format": "application/json"}
+    def copilot_usage_user_detail(self, period: str = "D7") -> list[dict[str, Any]]:
+        url = f"{MS_GRAPH_BASE}/v1.0/reports/getMicrosoft365CopilotUsageUserDetail(period='{period}')"
+        rows: list[dict[str, Any]] = []
+        params: dict[str, Any] | None = {"$format": "application/json"}
         while url:
             response = self._get(url, params=params)
             params = None

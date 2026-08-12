@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import Any, Dict
+from typing import Any
 
 from splunklib import modularinput as smi
 
@@ -94,8 +94,8 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                     payload=payload,
                     index=index,
                     sourcetype=sourcetype,
-                    source="anthropic:analytics:%s" % account_name,
-                    event_time="%sT00:00:00Z" % event_date
+                    source=f"anthropic:analytics:{account_name}",
+                    event_time=f"{event_date}T00:00:00Z"
                     if len(str(event_date)) == 10
                     else event_date,
                 )
@@ -107,16 +107,16 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 "Anthropic analytics %s collection failed: %s", category, exc
             )
             continue
-        checkpoint.update(ckpt_key, **{"last_ending_%s" % category: ending_date})
+        checkpoint.update(ckpt_key, **{f"last_ending_{category}": ending_date})
 
     logger.info("Ingested %s Anthropic analytics records", count)
     return count
 
 
-def _resume_date(state: Dict[str, Any], category: str, default_start: date) -> date:
+def _resume_date(state: dict[str, Any], category: str, default_start: date) -> date:
     """Day after the last day this collector ingested, floored at the
     lookback default. Falls back to the legacy shared key if present."""
-    last = state.get("last_ending_%s" % category) or state.get("last_ending_date")
+    last = state.get(f"last_ending_{category}") or state.get("last_ending_date")
     if last:
         try:
             resumed = date.fromisoformat(str(last)) + timedelta(days=1)

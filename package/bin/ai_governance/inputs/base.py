@@ -20,7 +20,7 @@ def run_input(
     """Iterate configured input stanzas, drive collection, log lifecycle."""
     for input_name, input_item in inputs.inputs.items():
         normalized_input_name = input_name.split("/")[-1]
-        logger = logger_for_input("%s_%s" % (input_type, normalized_input_name))
+        logger = logger_for_input(f"{input_type}_{normalized_input_name}")
         session_key = inputs.metadata["session_key"]
         try:
             configure_logger(logger, session_key)
@@ -48,8 +48,8 @@ def run_input(
             log.log_exception(
                 logger,
                 exc,
-                "%s_error" % input_type,
-                msg_before="Failed to collect %s data: " % input_type,
+                f"{input_type}_error",
+                msg_before=f"Failed to collect {input_type} data: ",
             )
 
 

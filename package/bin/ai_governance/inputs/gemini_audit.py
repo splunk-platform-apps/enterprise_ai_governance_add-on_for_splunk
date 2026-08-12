@@ -61,7 +61,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
 
     total = 0
     for application in applications:
-        app_state_key = "last_time_%s" % application
+        app_state_key = f"last_time_{application}"
         start_time = state.get(app_state_key)
         if not start_time:
             start_time = _iso(
@@ -87,7 +87,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 payload=normalized,
                 index=index,
                 sourcetype=ST_GEMINI_AUDIT,
-                source="aigov:gemini:%s:%s" % (application, account_name),
+                source=f"aigov:gemini:{application}:{account_name}",
                 event_time=item_time,
             )
             count += 1

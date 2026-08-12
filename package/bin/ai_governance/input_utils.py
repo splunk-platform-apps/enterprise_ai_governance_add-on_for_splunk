@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 from solnlib import conf_manager, log
 from splunklib import modularinput as smi
@@ -15,7 +15,7 @@ from ai_governance import ADDON_NAME, SETTINGS_CONF
 
 def logger_for_input(input_name: str) -> logging.Logger:
     sanitized = input_name.replace("://", "_").replace("/", "_")
-    return log.Logs().get_logger("ta_ai_governance_%s" % sanitized)
+    return log.Logs().get_logger(f"ta_ai_governance_{sanitized}")
 
 
 def configure_logger(logger: logging.Logger, session_key: str) -> None:
@@ -28,7 +28,7 @@ def configure_logger(logger: logging.Logger, session_key: str) -> None:
     logger.setLevel(log_level)
 
 
-def parse_event_time(value: Any) -> Optional[float]:
+def parse_event_time(value: Any) -> float | None:
     """Parse ISO-8601 strings or epoch numbers into an epoch float."""
     if value is None:
         return None
@@ -63,8 +63,8 @@ def parse_event_time(value: Any) -> Optional[float]:
 
 def write_json_event(
     event_writer: smi.EventWriter,
-    payload: Dict[str, Any],
-    index: Optional[str],
+    payload: dict[str, Any],
+    index: str | None,
     sourcetype: str,
     source: str,
     event_time: Any = None,

@@ -75,7 +75,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     ckpt_key = stanza_key(input_key)
     state = checkpoint.get(ckpt_key)
     index = input_item.get("index")
-    source = "aigov:selfhosted:%s" % account_name
+    source = f"aigov:selfhosted:{account_name}"
     now_iso = _now_iso()
     count = 0
 

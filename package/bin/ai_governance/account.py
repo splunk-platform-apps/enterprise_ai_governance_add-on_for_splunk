@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from solnlib import conf_manager
 
@@ -28,12 +28,12 @@ _ACCOUNT_FIELDS = (
 )
 
 
-def get_account_config(session_key: str, account_name: str) -> Dict[str, Any]:
+def get_account_config(session_key: str, account_name: str) -> dict[str, Any]:
     """Load an account stanza including decrypted credential fields."""
     cfm = conf_manager.ConfManager(
         session_key,
         ADDON_NAME,
-        realm="__REST_CREDENTIAL__#{}#configs/conf-{}".format(ADDON_NAME, ACCOUNT_CONF),
+        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{ACCOUNT_CONF}",
     )
     account_conf = cfm.get_conf(ACCOUNT_CONF)
     stanza = account_conf.get(account_name)
@@ -44,20 +44,22 @@ def get_account_config(session_key: str, account_name: str) -> Dict[str, Any]:
     return account
 
 
-def require_provider(account: Dict[str, Any], expected_provider: str) -> None:
+def require_provider(account: dict[str, Any], expected_provider: str) -> None:
     provider = account.get("provider")
     if provider != expected_provider:
         raise ValueError(
-            "Account '%s' has provider '%s' but this input requires provider '%s'. "
-            "Select a matching account on the input."
-            % (account.get("name"), provider, expected_provider)
+            "Account '{}' has provider '{}' but this input requires provider '{}'. "
+            "Select a matching account on the input.".format(
+                account.get("name"), provider, expected_provider
+            )
         )
 
 
-def require_fields(account: Dict[str, Any], *fields: str) -> None:
+def require_fields(account: dict[str, Any], *fields: str) -> None:
     missing = [field for field in fields if not account.get(field)]
     if missing:
         raise ValueError(
-            "Account '%s' is missing required credential field(s): %s"
-            % (account.get("name"), ", ".join(missing))
+            "Account '{}' is missing required credential field(s): {}".format(
+                account.get("name"), ", ".join(missing)
+            )
         )

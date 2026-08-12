@@ -8,7 +8,7 @@ from gemini_audit_helper import stream_events, validate_input
 
 class GEMINI_AUDIT(smi.Script):
     def __init__(self):
-        super(GEMINI_AUDIT, self).__init__()
+        super().__init__()
 
     def get_scheme(self):
         scheme = smi.Scheme("gemini_audit")

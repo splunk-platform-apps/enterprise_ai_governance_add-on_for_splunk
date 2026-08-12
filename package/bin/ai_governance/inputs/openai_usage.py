@@ -119,7 +119,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 now,
                 "usage",
                 ST_OPENAI_USAGE,
-                "aigov:openai:usage:%s" % account_name,
+                f"aigov:openai:usage:{account_name}",
                 index,
                 event_writer,
             )
@@ -138,7 +138,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 now,
                 "cost",
                 ST_OPENAI_COST,
-                "aigov:openai:costs:%s" % account_name,
+                f"aigov:openai:costs:{account_name}",
                 index,
                 event_writer,
             )
