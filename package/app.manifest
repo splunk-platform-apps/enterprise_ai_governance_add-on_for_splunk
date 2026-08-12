@@ -27,7 +27,7 @@
         "id": {
             "group": null,
             "name": "TA-ai-governance",
-            "version": "1.0.3"
+            "version": "1.1.0"
         },
         "license": {
             "name": "Apache-2.0",
@@ -45,7 +45,7 @@
             "text": null,
             "uri": "https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/blob/main/CHANGELOG.md"
         },
-        "title": "Enterprise AI Governance App for Splunk"
+        "title": "Enterprise AI Governance Add-on for Splunk"
     },
     "inputGroups": null,
     "platformRequirements": null,

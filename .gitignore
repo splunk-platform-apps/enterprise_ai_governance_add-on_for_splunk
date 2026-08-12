@@ -81,3 +81,6 @@ build/
 
 ### Locally packaged add-on artifacts
 TA-ai-governance-*.tar.gz
+
+### Local agent config and notes (this repo is public — keep local context out)
+.claude/

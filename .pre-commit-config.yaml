@@ -46,3 +46,13 @@ repos:
     -   id: detect-secrets
         args: ['--no-verify']
         exclude: "README.md"
+
+    # Keep every version location in step (see tests/test_version_sync.py)
+-   repo: local
+    hooks:
+    -   id: version-sync
+        name: version locations agree
+        entry: python3 tests/test_version_sync.py
+        language: system
+        pass_filenames: false
+        files: ^(CHANGELOG\.md|globalConfig\.json|package/app\.manifest|package/default/app\.conf|package/bin/ai_governance/__init__\.py)$

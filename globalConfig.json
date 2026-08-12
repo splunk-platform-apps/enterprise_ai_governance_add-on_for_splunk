@@ -2,8 +2,8 @@
     "meta": {
         "name": "TA-ai-governance",
         "restRoot": "TA-ai-governance",
-        "version": "1.0.3",
-        "displayName": "Enterprise AI Governance App for Splunk",
+        "version": "1.1.0",
+        "displayName": "Enterprise AI Governance Add-on for Splunk",
         "schemaVersion": "0.0.10",
         "navColor": "#5C6BC0",
         "checkForUpdates": false,
@@ -166,6 +166,16 @@
                                             "fieldId": "sh_allow_http",
                                             "display": false,
                                             "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_principal_id",
+                                            "display": false,
+                                            "required": false
                                         }
                                     ]
                                 },
@@ -241,6 +251,16 @@
                                             "fieldId": "sh_allow_http",
                                             "display": false,
                                             "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_key",
+                                            "display": true,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_principal_id",
+                                            "display": true,
+                                            "required": false
                                         }
                                     ]
                                 },
@@ -314,6 +334,16 @@
                                         },
                                         {
                                             "fieldId": "sh_allow_http",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_principal_id",
                                             "display": false,
                                             "required": false
                                         }
@@ -391,6 +421,16 @@
                                             "fieldId": "sh_allow_http",
                                             "display": false,
                                             "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_principal_id",
+                                            "display": false,
+                                            "required": false
                                         }
                                     ]
                                 },
@@ -466,6 +506,16 @@
                                             "fieldId": "sh_server_type",
                                             "display": true,
                                             "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_key",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "openai_compliance_principal_id",
+                                            "display": false,
+                                            "required": false
                                         }
                                     ]
                                 }
@@ -499,6 +549,28 @@
                                     "type": "regex",
                                     "pattern": "^(?:sk-admin-|\\*{6}$|\\*{8}$)",
                                     "errorMsg": "Enter an OpenAI organization Admin API key (sk-admin-...). Only an organization Owner can create one under platform.openai.com > Settings > Organization > Admin keys. Project keys (sk-proj-...) cannot read audit logs."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "OpenAI Compliance API key",
+                            "field": "openai_compliance_key",
+                            "help": "Optional. ChatGPT Enterprise Compliance API key, used by the OpenAI Compliance Logs input. This is NOT the platform Admin API key above: an Organization Owner creates it and OpenAI must approve the Compliance API scopes on it. Requires ChatGPT Enterprise, Edu or ChatGPT for Teachers.",
+                            "required": false,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "OpenAI workspace / organization ID",
+                            "field": "openai_compliance_principal_id",
+                            "help": "Required with the Compliance API key. Either a ChatGPT workspace ID (a UUID) or an API Platform organization ID (org-...). The value selects which Compliance API scope is queried.",
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^(org-[A-Za-z0-9]+|[0-9a-fA-F-]{16,})$",
+                                    "errorMsg": "Enter a ChatGPT workspace ID (UUID) or an API Platform organization ID beginning with org-."
                                 }
                             ]
                         },
@@ -934,9 +1006,144 @@
                     ]
                 },
                 {
+                    "name": "openai_compliance",
+                    "inputHelperModule": "openai_compliance_helper",
+                    "title": "OpenAI Compliance Logs (ChatGPT Enterprise)",
+                    "description": "End-user activity from the ChatGPT Enterprise Compliance Logs Platform. Requires a Compliance API key, not the platform Admin key.",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "field": "account",
+                            "required": true,
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select an account with provider OpenAI that has a Compliance API key and workspace/organization ID configured."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        60,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 60 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "300"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Event types",
+                            "field": "event_types",
+                            "defaultValue": "AUTH_LOG",
+                            "required": true,
+                            "help": "Comma-separated Compliance Logs event types to collect, for example AUTH_LOG. The set available to your workspace is listed in the Compliance API reference at chatgpt.com/admin/api-reference. Unrecognized types are skipped with a warning and do not stop the other types.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[A-Z0-9_]+(\\s*,\\s*[A-Z0-9_]+)*$",
+                                    "errorMsg": "Enter one or more uppercase event type names separated by commas, for example AUTH_LOG."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Initial backfill days",
+                            "field": "backfill_days",
+                            "defaultValue": "7",
+                            "required": false,
+                            "help": "Days of history to collect on first run. The Compliance Logs Platform retains about 30 days, so larger values are capped at 30.",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        30
+                                    ],
+                                    "errorMsg": "Initial backfill days must be between 1 and 30."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max log files per cycle",
+                            "field": "max_files_per_cycle",
+                            "defaultValue": "200",
+                            "required": false,
+                            "help": "Upper bound on log files downloaded per event type per interval. When the limit is hit the checkpoint stays on the partial page and collection resumes there next interval.",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        5000
+                                    ],
+                                    "errorMsg": "Max log files per cycle must be between 1 and 5000."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Index full message content",
+                            "field": "include_message_content",
+                            "defaultValue": false,
+                            "required": false,
+                            "help": "Off by default. When enabled, user prompts and model responses are indexed verbatim. Confirm your index retention, access controls and data classification allow storing conversation content before turning this on. When off, content fields are replaced with a redaction marker and a character count, and events carry aigov_content_redacted=true."
+                        }
+                    ]
+                },
+                {
                     "name": "openai_audit",
                     "inputHelperModule": "openai_audit_helper",
-                    "title": "OpenAI Audit Logs",
+                    "title": "OpenAI Platform Audit Logs",
                     "description": "Organization audit logs and user directory from the OpenAI platform API",
                     "entity": [
                         {

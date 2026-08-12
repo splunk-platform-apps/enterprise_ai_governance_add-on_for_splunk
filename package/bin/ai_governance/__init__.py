@@ -1,7 +1,48 @@
 """AI Governance Add-on for Splunk - shared constants."""
 
+import json
+import os
+import re
+
 ADDON_NAME = "TA-ai-governance"
-ADDON_VERSION = "1.0.2"  # keep in sync with VERSION / app.conf / app.manifest
+
+# Only reached when app.manifest cannot be read; tests/test_version_sync.py
+# keeps it level with the manifest, globalConfig.json, app.conf and CHANGELOG.
+_FALLBACK_VERSION = "1.1.0"
+
+# Deliberately narrow - this value goes out in an HTTP header.
+_VERSION_RE = re.compile(r"^[0-9A-Za-z.+-]{1,32}$")
+
+
+def _manifest_version():
+    """Return the add-on version recorded in app.manifest.
+
+    app.manifest is the version the package is actually stamped with: org CI
+    reads ``info.id.version`` from it and passes that to ``ucc-gen build
+    --ta-version``. Reading it here keeps the User-Agent honest rather than
+    relying on a constant somebody has to remember to bump.
+
+    The manifest sits two directories above this package, in the source tree
+    (``package/app.manifest``) and in an installed add-on
+    (``$SPLUNK_HOME/etc/apps/TA-ai-governance/app.manifest``) alike. Standard
+    library only, for the Splunk-bundled interpreter, and every failure falls
+    back to the constant above - reporting a stale version is survivable, an
+    input that will not start is not.
+    """
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    app_root = os.path.dirname(os.path.dirname(module_dir))
+    manifest_path = os.path.join(app_root, "app.manifest")
+    try:
+        with open(manifest_path, encoding="utf-8") as manifest_file:
+            version = json.load(manifest_file)["info"]["id"]["version"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return _FALLBACK_VERSION
+    if isinstance(version, str) and _VERSION_RE.match(version):
+        return version
+    return _FALLBACK_VERSION
+
+
+ADDON_VERSION = _manifest_version()
 
 SETTINGS_CONF = "ta-ai-governance_settings"
 ACCOUNT_CONF = "ta-ai-governance_account"
@@ -29,6 +70,11 @@ ST_OPENAI_AUDIT = "aigov:openai:audit"
 ST_OPENAI_USER = "aigov:openai:user"
 ST_OPENAI_USAGE = "aigov:openai:usage"
 ST_OPENAI_COST = "aigov:openai:cost"
+# ChatGPT Enterprise Compliance Logs Platform. One sourcetype covers every
+# event_type the platform exposes; the per-record ``aigov_log_type`` field
+# carries the event type, because the event_type enum is workspace-specific
+# and documented only behind an authenticated Enterprise API reference.
+ST_OPENAI_COMPLIANCE = "aigov:openai:compliance"
 
 ST_GEMINI_AUDIT = "aigov:gemini:audit"
 
@@ -45,6 +91,9 @@ ST_SELFHOSTED_HEALTH = "aigov:selfhosted:health"
 ANTHROPIC_API_BASE = "https://api.anthropic.com"
 ANTHROPIC_VERSION = "2023-06-01"
 OPENAI_API_BASE = "https://api.openai.com"
+# The ChatGPT Enterprise Compliance API is a different host and a different
+# credential from the platform Admin API above.
+OPENAI_COMPLIANCE_API_BASE = "https://api.chatgpt.com/v1/compliance"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_REPORTS_BASE = "https://admin.googleapis.com"
 MS_LOGIN_BASE = "https://login.microsoftonline.com"

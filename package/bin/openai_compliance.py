@@ -3,16 +3,16 @@ import import_declare_test  # noqa: F401 — sets up sys.path for bundled lib/ (
 import sys
 
 from splunklib import modularinput as smi
-from openai_audit_helper import stream_events, validate_input
+from openai_compliance_helper import stream_events, validate_input
 
 
-class OPENAI_AUDIT(smi.Script):
+class OPENAI_COMPLIANCE(smi.Script):
     def __init__(self):
         super().__init__()
 
     def get_scheme(self):
-        scheme = smi.Scheme("openai_audit")
-        scheme.description = "OpenAI Platform Audit Logs"
+        scheme = smi.Scheme("openai_compliance")
+        scheme.description = "OpenAI Compliance Logs (ChatGPT Enterprise)"
         scheme.use_external_validation = True
         scheme.streaming_mode_xml = True
         scheme.use_single_instance = False
@@ -30,19 +30,25 @@ class OPENAI_AUDIT(smi.Script):
         )
         scheme.add_argument(
             smi.Argument(
+                "event_types",
+                required_on_create=False,
+            )
+        )
+        scheme.add_argument(
+            smi.Argument(
                 "backfill_days",
                 required_on_create=False,
             )
         )
         scheme.add_argument(
             smi.Argument(
-                "max_events_per_cycle",
+                "max_files_per_cycle",
                 required_on_create=False,
             )
         )
         scheme.add_argument(
             smi.Argument(
-                "collect_users",
+                "include_message_content",
                 required_on_create=False,
             )
         )
@@ -56,5 +62,5 @@ class OPENAI_AUDIT(smi.Script):
 
 
 if __name__ == "__main__":
-    exit_code = OPENAI_AUDIT().run(sys.argv)
+    exit_code = OPENAI_COMPLIANCE().run(sys.argv)
     sys.exit(exit_code)
