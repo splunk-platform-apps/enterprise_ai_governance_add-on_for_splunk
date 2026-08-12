@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from splunklib import modularinput as smi
@@ -56,7 +56,12 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     # Analytics data is finalized with a delay; collect through yesterday.
     # Each collector resumes from its own checkpoint so a given day is
     # ingested exactly once (re-pulling the window would multiply sums).
-    ending = date.today() - timedelta(days=1)
+    #
+    # UTC, not the search head's local date: the API reports days in UTC, and
+    # the checkpoint below advances past `ending` unconditionally. On a server
+    # ahead of UTC a local "yesterday" can still be today in UTC, so the run
+    # would ingest a partial day, checkpoint past it and never backfill it.
+    ending = datetime.now(timezone.utc).date() - timedelta(days=1)
     default_start = ending - timedelta(days=lookback_days - 1)
     ending_date = ending.isoformat()
 
