@@ -67,7 +67,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 payload=normalized,
                 index=index,
                 sourcetype=ST_OPENAI_AUDIT,
-                source="aigov:openai:audit:%s" % account_name,
+                source=f"aigov:openai:audit:{account_name}",
                 event_time=record.get("effective_at"),
             )
             count += 1
@@ -139,7 +139,7 @@ def _collect_users(
             payload=payload,
             index=index,
             sourcetype=ST_OPENAI_USER,
-            source="aigov:openai:directory:%s" % account_name,
+            source=f"aigov:openai:directory:{account_name}",
             event_time=snapshot_time,
         )
         count += 1

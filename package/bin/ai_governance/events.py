@@ -18,7 +18,7 @@ Compliance Logs records carry two extra fields:
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 PRODUCT_NAMES = {
     "anthropic": "Anthropic Claude Enterprise",
@@ -30,13 +30,13 @@ PRODUCT_NAMES = {
 
 
 def envelope(
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     provider: str,
     category: str,
-    action: Optional[str] = None,
-    user: Optional[str] = None,
-    src_ip: Optional[str] = None,
-) -> Dict[str, Any]:
+    action: str | None = None,
+    user: str | None = None,
+    src_ip: str | None = None,
+) -> dict[str, Any]:
     """Return a shallow copy of payload with the common envelope merged in."""
     event = dict(payload)
     event["aigov_provider"] = provider
@@ -58,7 +58,7 @@ def _first(*values):
     return None
 
 
-def normalize_anthropic_activity(activity: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_anthropic_activity(activity: dict[str, Any]) -> dict[str, Any]:
     actor = activity.get("actor") or {}
     attributes = activity.get("attributes") or {}
     flat = dict(activity)
@@ -77,7 +77,7 @@ def normalize_anthropic_activity(activity: Dict[str, Any]) -> Dict[str, Any]:
     )
 
 
-def normalize_openai_audit(record: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_openai_audit(record: dict[str, Any]) -> dict[str, Any]:
     actor = record.get("actor") or {}
     flat = dict(record)
     session = actor.get("session") or {}
@@ -158,13 +158,13 @@ def redact_content(value: Any, _depth: int = 0, _under_content: bool = False) ->
         is_content = key.lower() in _CONTENT_KEYS
         if is_content and isinstance(item, str):
             result[key] = _REDACTED
-            result["%s_chars" % key] = len(item)
+            result[f"{key}_chars"] = len(item)
         else:
             result[key] = redact_content(item, _depth + 1, is_content)
     return result
 
 
-def _compliance_category(event_type: Optional[str]) -> str:
+def _compliance_category(event_type: str | None) -> str:
     """Map a Compliance Logs event_type onto the shared category taxonomy.
 
     Matching is by substring rather than a fixed table: the event_type enum
@@ -181,10 +181,10 @@ def _compliance_category(event_type: Optional[str]) -> str:
 
 
 def normalize_openai_compliance(
-    record: Dict[str, Any],
+    record: dict[str, Any],
     event_type: str,
     include_content: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Flatten one JSONL record from the Compliance Logs Platform."""
     flat = dict(record)
     actor = record.get("actor") if isinstance(record.get("actor"), dict) else {}
@@ -241,7 +241,7 @@ def normalize_openai_compliance(
     return event
 
 
-def compliance_event_time(record: Dict[str, Any]) -> Any:
+def compliance_event_time(record: dict[str, Any]) -> Any:
     """Best-effort event timestamp for a Compliance Logs record."""
     return _first(
         record.get("timestamp"),
@@ -252,7 +252,7 @@ def compliance_event_time(record: Dict[str, Any]) -> Any:
     )
 
 
-def normalize_gemini_activity(item: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_gemini_activity(item: dict[str, Any]) -> dict[str, Any]:
     """Flatten one Admin SDK Reports activity item (one event per sub-event)."""
     flat = dict(item)
     identity = item.get("id") or {}
@@ -274,7 +274,7 @@ def normalize_gemini_activity(item: Dict[str, Any]) -> Dict[str, Any]:
     )
 
 
-def normalize_copilot_record(record: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_copilot_record(record: dict[str, Any]) -> dict[str, Any]:
     flat = dict(record)
     return envelope(
         flat,

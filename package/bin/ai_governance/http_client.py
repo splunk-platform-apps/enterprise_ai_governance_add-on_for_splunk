@@ -13,7 +13,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ai_governance import ADDON_NAME, ADDON_VERSION
 
@@ -27,7 +27,7 @@ class APIError(Exception):
     """Raised when a provider API returns an error response."""
 
     def __init__(self, status_code, message, response_body=None):
-        super(APIError, self).__init__(message)
+        super().__init__(message)
         self.status_code = status_code
         self.response_body = response_body
 
@@ -84,10 +84,10 @@ class JsonHttpClient:
         self,
         method: str,
         url: str,
-        headers: Optional[Dict[str, str]] = None,
-        params: Optional[Dict[str, Any]] = None,
-        json_body: Optional[Dict[str, Any]] = None,
-        form_body: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        json_body: dict[str, Any] | None = None,
+        form_body: dict[str, str] | None = None,
         raw_text: bool = False,
     ) -> Any:
         """Perform an HTTPS request and return the parsed JSON body
@@ -111,7 +111,7 @@ class JsonHttpClient:
 
         all_headers = {
             "Accept": "application/json",
-            "User-Agent": "%s/%s" % (ADDON_NAME, ADDON_VERSION),
+            "User-Agent": f"{ADDON_NAME}/{ADDON_VERSION}",
         }
         if headers:
             all_headers.update(headers)
@@ -166,9 +166,9 @@ class JsonHttpClient:
                     time.sleep(2**attempt)
                     last_error = exc
                     continue
-                raise APIError(0, "Network error: %s" % exc.reason)
+                raise APIError(0, f"Network error: {exc.reason}")
 
-        raise APIError(0, "Request failed after retries: %s" % last_error)
+        raise APIError(0, f"Request failed after retries: {last_error}")
 
     def get_json(self, url, headers=None, params=None):
         return self.request_json("GET", url, headers=headers, params=params)

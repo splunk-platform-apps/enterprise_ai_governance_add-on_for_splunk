@@ -12,7 +12,8 @@ Ollama endpoints. Collects governance-relevant signals only:
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any
+from collections.abc import Iterator
 
 from ai_governance.http_client import JsonHttpClient
 
@@ -29,9 +30,9 @@ class SelfHostedAPI:
         self,
         base_url: str,
         server_type: str = SERVER_OPENAI_COMPATIBLE,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         allow_http: bool = False,
-        proxy_url: Optional[str] = None,
+        proxy_url: str | None = None,
     ):
         self._base = base_url.rstrip("/")
         self._server_type = server_type or SERVER_OPENAI_COMPATIBLE
@@ -42,16 +43,16 @@ class SelfHostedAPI:
     def server_type(self) -> str:
         return self._server_type
 
-    def _headers(self) -> Dict[str, str]:
+    def _headers(self) -> dict[str, str]:
         if self._api_key:
-            return {"Authorization": "Bearer %s" % self._api_key}
+            return {"Authorization": f"Bearer {self._api_key}"}
         return {}
 
     def _get(self, path: str) -> Any:
         return self._client.get_json(self._base + path, headers=self._headers())
 
     # -- Model inventory ---------------------------------------------------
-    def list_models(self) -> Tuple[List[Dict[str, Any]], float]:
+    def list_models(self) -> tuple[list[dict[str, Any]], float]:
         """Return (models, latency_seconds). Model dicts are normalized to
         always carry a ``model_id`` key."""
         started = time.time()
@@ -75,7 +76,7 @@ class SelfHostedAPI:
         return [m for m in models if m.get("model_id")], latency
 
     # -- Runtime state (Ollama) ---------------------------------------------
-    def running_models(self) -> List[Dict[str, Any]]:
+    def running_models(self) -> list[dict[str, Any]]:
         if self._server_type != SERVER_OLLAMA:
             return []
         response = self._get("/api/ps")
@@ -89,8 +90,8 @@ class SelfHostedAPI:
 
     # -- Prometheus metrics --------------------------------------------------
     def scrape_metrics(
-        self, metrics_path: str = "/metrics", prefixes: Optional[List[str]] = None
-    ) -> Iterator[Dict[str, Any]]:
+        self, metrics_path: str = "/metrics", prefixes: list[str] | None = None
+    ) -> Iterator[dict[str, Any]]:
         """Parse Prometheus text exposition format into metric sample dicts.
 
         Yields ``{"metric_name": ..., "value": ..., <label>: <value>, ...}``
@@ -113,7 +114,7 @@ class SelfHostedAPI:
             yield sample
 
 
-def _parse_prometheus_line(line: str) -> Optional[Dict[str, Any]]:
+def _parse_prometheus_line(line: str) -> dict[str, Any] | None:
     """Parse one exposition line: ``name{l1="v1",l2="v2"} value [ts]``."""
     try:
         if "{" in line:
@@ -128,7 +129,7 @@ def _parse_prometheus_line(line: str) -> Optional[Dict[str, Any]]:
         if not value_tokens:
             return None
         value = float(value_tokens[0])
-        sample: Dict[str, Any] = {"metric_name": name.strip(), "value": value}
+        sample: dict[str, Any] = {"metric_name": name.strip(), "value": value}
         if labels_part:
             for pair in _split_labels(labels_part):
                 if "=" not in pair:
@@ -140,7 +141,7 @@ def _parse_prometheus_line(line: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _split_labels(labels_part: str) -> List[str]:
+def _split_labels(labels_part: str) -> list[str]:
     """Split label pairs on commas outside quoted values."""
     pairs = []
     current = []

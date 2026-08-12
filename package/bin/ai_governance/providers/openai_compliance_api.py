@@ -22,7 +22,8 @@ Reference: https://cookbook.openai.com/examples/chatgpt/compliance_api/logs_plat
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any
+from collections.abc import Iterator
 from urllib.parse import quote
 
 from ai_governance import OPENAI_COMPLIANCE_API_BASE
@@ -61,14 +62,14 @@ class OpenAIComplianceAPI:
     def principal_id(self) -> str:
         return self._principal_id
 
-    def _headers(self, accept: str = "application/json") -> Dict[str, str]:
+    def _headers(self, accept: str = "application/json") -> dict[str, str]:
         return {
-            "Authorization": "Bearer %s" % self._key,
+            "Authorization": f"Bearer {self._key}",
             "Accept": accept,
         }
 
     def _logs_url(self, suffix: str = "") -> str:
-        return "%s/%s/%s/logs%s" % (
+        return "{}/{}/{}/logs{}".format(
             OPENAI_COMPLIANCE_API_BASE,
             self._scope_segment,
             quote(self._principal_id, safe=""),
@@ -80,7 +81,7 @@ class OpenAIComplianceAPI:
         event_type: str,
         after: str,
         limit: int = MAX_PAGE_SIZE,
-    ) -> Iterator[Tuple[List[Dict[str, Any]], Optional[str], bool]]:
+    ) -> Iterator[tuple[list[dict[str, Any]], str | None, bool]]:
         """Yield ``(file_descriptors, last_end_time, has_more)`` per page.
 
         The caller is expected to fully process a page (download and emit
@@ -114,12 +115,12 @@ class OpenAIComplianceAPI:
     def download_log(self, file_id: str) -> str:
         """Download one log file and return its raw JSONL body."""
         return self._client.get_text(
-            self._logs_url("/%s" % quote(str(file_id), safe="")),
+            self._logs_url("/{}".format(quote(str(file_id), safe=""))),
             headers=self._headers(accept=_DOWNLOAD_ACCEPT),
         )
 
 
-def parse_jsonl(body: str) -> Iterator[Dict[str, Any]]:
+def parse_jsonl(body: str) -> Iterator[dict[str, Any]]:
     """Yield the JSON objects in a JSONL body, skipping unparseable lines.
 
     A single malformed line must not cost the rest of the file: these are

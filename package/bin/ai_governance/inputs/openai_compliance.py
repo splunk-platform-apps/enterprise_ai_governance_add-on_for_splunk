@@ -90,7 +90,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 logger=logger,
                 api=api,
                 checkpoint=checkpoint,
-                ckpt_key="%s:%s" % (base_key, event_type),
+                ckpt_key=f"{base_key}:{event_type}",
                 event_type=event_type,
                 account_name=account_name,
                 index=index,
@@ -152,7 +152,7 @@ def _collect_event_type(
             after,
         )
 
-    source = "aigov:openai:compliance:%s" % account_name
+    source = f"aigov:openai:compliance:{account_name}"
     files_done = 0
     records = 0
     truncated = False

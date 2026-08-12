@@ -1,0 +1,45 @@
+# Ruff configuration for the Enterprise AI Governance Add-on.
+#
+# Both settings below are load-bearing; neither is a style preference.
+#
+# target-version pins the syntax ruff is allowed to emit. Without it ruff
+# assumes Python 3.10, but org CI builds this add-on on a 3.9 / 3.13 matrix and
+# it runs on whatever interpreter Splunk bundles. An unpinned ruff can rewrite
+# `Optional[X]` to `X | None` (UP045) or `Dict[str, Any]` to `dict[...]`
+# (UP006), which raise TypeError at runtime on 3.9 in any annotation that is
+# actually evaluated. Keep this at the floor of the CI matrix.
+#
+# lint.select is explicit so that upgrading ruff and adopting new rules stay
+# separate, reviewed decisions. Ruff enables rules by default and changes that
+# default between releases: v0.16.0 switched on five new families at once and
+# surfaced 183 findings in code nobody had touched. To adopt a family, add it
+# here and land the fixes in the same change.
+
+target-version = "py39"
+
+[lint]
+# E4/E7/E9 + F is ruff's long-standing default. UP (pyupgrade) was adopted
+# deliberately; the rewrites are safe here because every module carrying
+# annotations also has `from __future__ import annotations`, so they are never
+# evaluated at runtime on 3.9.
+#
+# Deliberately NOT enabled, each for a concrete reason rather than taste:
+#
+#   I    (isort)  reorders `import import_declare_test` out of first position
+#                 in the modular-input entry points. That import is a UCC
+#                 side effect that puts the add-on's bundled lib/ on sys.path
+#                 before splunklib is imported; moving it breaks the add-on at
+#                 runtime. It currently survives only by alphabetical accident,
+#                 and openai_audit_helper.py already carries an `isort: skip`.
+#   BLE  (blind-except)  the broad `except Exception` handlers are deliberate:
+#                 a modular input must survive one bad record rather than die.
+#                 Every one of them logs via log.log_exception.
+#   S110 flags the documented `try/except/pass` around logger configuration,
+#                 which intentionally falls back to the default level rather
+#                 than dropping collection.
+#   SIM102 would collapse the HTTPS scheme guard in http_client.py into a
+#                 single condition, displacing the comment that explains why
+#                 plain HTTP is permitted only on explicit opt-in.
+#   DTZ  worth enabling once the timezone fix lands; see the UTC change to
+#                 anthropic_analytics in the 1.0.4 release PR.
+select = ["E4", "E7", "E9", "F", "UP"]

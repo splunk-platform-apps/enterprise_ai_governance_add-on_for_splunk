@@ -76,7 +76,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
             payload=normalized,
             index=index,
             sourcetype=ST_ANTHROPIC_ACTIVITY,
-            source="anthropic:activities:%s" % account_name,
+            source=f"anthropic:activities:{account_name}",
             event_time=normalized.get("created_at"),
         )
         count += 1
@@ -123,7 +123,7 @@ def _collect_directory(
             payload=payload,
             index=index,
             sourcetype=ST_ANTHROPIC_USER,
-            source="anthropic:directory:%s" % account_name,
+            source=f"anthropic:directory:{account_name}",
             event_time=snapshot_time,
         )
         count += 1
@@ -141,7 +141,7 @@ def _collect_directory(
                 payload=payload,
                 index=index,
                 sourcetype=ST_ANTHROPIC_GROUP,
-                source="anthropic:directory:%s" % account_name,
+                source=f"anthropic:directory:{account_name}",
                 event_time=snapshot_time,
             )
             count += 1
