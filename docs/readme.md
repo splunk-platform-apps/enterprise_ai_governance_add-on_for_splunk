@@ -41,7 +41,7 @@ Download the packaged add-on from the [releases page](https://github.com/splunk-
 
 **Install this add-on on the search head.** Dashboards, macros, alerts and the modular inputs all run there in the validated standalone topology. Distributed and search head cluster deployments are designed for (KV Store checkpointing keeps inputs restartable across members) but have not yet been validated — hold off on those topologies until a release announces support.
 
-On Splunk Cloud, install as a private app (self-service app install / ACS).
+On Splunk Cloud Platform, install as a private app (self-service app install / ACS).
 
 ### Configuration
 
@@ -174,7 +174,7 @@ Sourcetypes written by the add-on:
 
 `props.conf` also carries extraction stanzas for additional `anthropic:compliance:*` and `anthropic:analytics:*` sourcetypes that belong to the shared Anthropic taxonomy but are not written by this add-on's inputs.
 
-A note on backfills: the OpenAI and Gemini audit APIs return newest events first. If the initial backfill window holds more events than `max_events_per_cycle`, the oldest events in that window are skipped (a warning is logged when the cap is hit) — raise `max_events_per_cycle` on the input before its first run if you need a large backfill.
+A note on backfills: the OpenAI and Gemini audit APIs return newest events first. If the initial backfill window holds more events than `max_events_per_cycle`, the oldest events in that window are skipped (a warning is logged when the cap is reached) — raise `max_events_per_cycle` on the input before its first run if you need a large backfill.
 
 ## Troubleshooting
 
