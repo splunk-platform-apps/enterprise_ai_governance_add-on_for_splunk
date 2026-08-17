@@ -1,3 +1,7 @@
 splunk-add-on-ucc-framework==6.5.2
-# 8.4.x is the last line supporting Python 3.9, the floor of the org CI matrix
-pytest==8.4.2
+# pytest is optional here: tests/test_version_sync.py is stdlib-only and the
+# pre-commit hook runs it as `python3 tests/test_version_sync.py`, so no CI job
+# installs this file. Pin past CVE-2025-71176 (fixed in 9.0.3, no 8.x backport)
+# for anyone who prefers `pytest tests/`; 9.x needs Python 3.10+, and the marker
+# keeps `pip install -r requirements-dev.txt` working on the 3.9 CI floor.
+pytest>=9.0.3; python_version >= "3.10"

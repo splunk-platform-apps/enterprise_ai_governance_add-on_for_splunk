@@ -38,7 +38,7 @@ The add-on is read-only against provider APIs: every credential it asks for is a
 
 ## Getting Started
 
-Download the latest compiled add-on from the releases page and install it on the search head; on Splunk Cloud, install it as a private app.
+Download the latest compiled add-on from the releases page and install it on the search head; on Splunk Cloud Platform, install it as a private app.
 
 :package: [Download the latest release here](https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/releases)
 
