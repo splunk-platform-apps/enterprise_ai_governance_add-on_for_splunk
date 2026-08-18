@@ -1,0 +1,68 @@
+
+# TEMPORARY debug workflow — delete before merging.
+# Boots the same splunk/splunk:10.0.1 image the org install test uses,
+# installs the built add-on, and prints the raw btool / splunkd.log
+# SpecFiles lines that the org gate reports only as opaque counts.
+name: tmp-debug-specfiles
+
+on:
+  push:
+    branches:
+      - release/v1.1.1
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Build add-on
+        run: |
+          pip install -q splunk-add-on-ucc-framework==6.5.3
+          ucc-gen build --source package --config globalConfig.json --ta-version 1.1.1
+
+      - name: Start Splunk 10.0.1
+        run: |
+          docker run -d --name spl \
+            -e SPLUNK_START_ARGS='--accept-license' \
+            -e SPLUNK_GENERAL_TERMS='--accept-sgt-current-at-splunk-com' \
+            -e SPLUNK_PASSWORD='ChangeMe123!' \
+            splunk/splunk:10.0.1
+          for i in $(seq 1 60); do
+            if docker exec spl /opt/splunk/bin/splunk status --accept-license 2>/dev/null | grep -q 'splunkd is running'; then
+              echo "splunkd up after ${i}0s"; break
+            fi
+            sleep 10
+          done
+
+      - name: Install add-on and restart
+        run: |
+          docker cp output/TA-ai-governance spl:/tmp/TA-ai-governance
+          docker exec -u root spl bash -c 'cp -R /tmp/TA-ai-governance /opt/splunk/etc/apps/ && chown -R splunk:splunk /opt/splunk/etc/apps/TA-ai-governance'
+          docker exec spl /opt/splunk/bin/splunk restart || true
+          for i in $(seq 1 30); do
+            if docker exec spl /opt/splunk/bin/splunk status 2>/dev/null | grep -q 'splunkd is running'; then
+              echo "splunkd back after ${i}0s"; break
+            fi
+            sleep 10
+          done
+
+      - name: ORACLE 1 — btool check inside 10.0.1
+        run: |
+          docker exec spl /opt/splunk/bin/splunk btool check --debug 2>&1 | grep -v '^Checking' | grep -B2 -A2 -i 'ai-governance' | head -60 || true
+          echo "=== full btool non-Checking output (first 60 lines) ==="
+          docker exec spl /opt/splunk/bin/splunk btool check --debug 2>&1 | grep -v '^Checking' | head -60 || true
+
+      - name: ORACLE 2 — raw SpecFiles lines in splunkd.log
+        run: |
+          docker exec spl bash -c "grep -n -B2 -A15 'SpecFiles' /opt/splunk/var/log/splunk/splunkd.log | tail -120" || true
+          echo "=== every TA-ai-governance line with WARN/ERROR context ==="
+          docker exec spl bash -c "grep -n 'TA-ai-governance' /opt/splunk/var/log/splunk/splunkd.log | head -40" || true
