@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
 
 - The **Provider** multiselect on *AI Governance Overview*, *AI Security Audit* and *AI Usage & Cost* returned zero events whenever more than one provider was selected: the `|s` escaping introduced in 1.0.4 quoted the comma-joined selection as a single literal string (`aigov_provider IN ("anthropic,openai")`), which matches no event. All 25 affected panel searches now expand the selection inside a `makeresults` subsearch — `split` on the delimiter, an allowlist `replace`, then `format` — so each value is quoted individually. The 1.0.4 injection-safety guarantee is preserved: the token still passes through `|s`, and the allowlist strips every character outside `[A-Za-z0-9_*,-]` before the value can reach the generated search string
+- Removed the `python.required = 3.13` key from every input stanza in `inputs.conf`. The key only exists in the newest Splunk spec files, so on Splunk 9.x and 10.0 splunkd logged an `Invalid key` SpecFiles warning per input at startup — nine warnings on every boot. `python.version = python3` remains and is honored on all supported versions; nothing consumed the removed key
 
 ## [1.1.0] - 2026-08-12
 
