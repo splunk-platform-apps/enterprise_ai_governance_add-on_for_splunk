@@ -5,13 +5,6 @@ collect_directory = Also snapshot organization users and groups each cycle (at m
 index = (Default: default)
 interval = Polling interval in seconds. (Default: 300)
 max_events_per_cycle = (Default: 2000)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [anthropic_analytics://<name>]
 account = Select an account with provider Anthropic.
 collect_cost = (Default: true)
@@ -20,13 +13,6 @@ collect_usage = (Default: true)
 index = (Default: default)
 interval = Polling interval in seconds. Analytics data is finalized daily. (Default: 86400)
 lookback_days = Re-collect this many trailing days each cycle to pick up late-arriving data. (Default: 7)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [openai_compliance://<name>]
 account = Select an account with provider OpenAI that has a Compliance API key and workspace/organization ID configured.
 backfill_days = Days of history to collect on first run. The Compliance Logs Platform retains about 30 days, so larger values are capped at 30. (Default: 7)
@@ -35,13 +21,6 @@ include_message_content = Off by default. When enabled, user prompts and model r
 index = (Default: default)
 interval = Polling interval in seconds. (Default: 300)
 max_files_per_cycle = Upper bound on log files downloaded per event type per interval. When the limit is hit the checkpoint stays on the partial page and collection resumes there next interval. (Default: 200)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [openai_audit://<name>]
 account = Select an account with provider OpenAI.
 backfill_days = Days of history to collect on first run. (Default: 7)
@@ -49,13 +28,6 @@ collect_users = Also snapshot organization users each cycle (at most once per 12
 index = (Default: default)
 interval = Polling interval in seconds. (Default: 300)
 max_events_per_cycle = (Default: 2000)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [openai_usage://<name>]
 account = Select an account with provider OpenAI.
 bucket_width = (Default: 1d)
@@ -64,13 +36,6 @@ collect_usage = (Default: true)
 index = (Default: default)
 interval = (Default: 86400)
 lookback_days = Re-collect this many trailing days each cycle to pick up late-arriving data. (Default: 7)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [gemini_audit://<name>]
 account = Select an account with provider Google Gemini.
 applications = Comma-separated Admin SDK Reports applicationName values to collect. (Default: gemini_in_workspace_apps)
@@ -78,38 +43,17 @@ backfill_days = Days of history to collect on first run (Reports API retains up 
 index = (Default: default)
 interval = (Default: 600)
 max_events_per_cycle = (Default: 5000)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [copilot_audit://<name>]
 account = Select an account with provider Microsoft 365 Copilot.
 backfill_days = (Default: 7)
 index = (Default: default)
 interval = Audit log queries are asynchronous on the Microsoft side; each cycle either submits a new query or retrieves finished results. (Default: 900)
 record_types = Comma-separated Microsoft Purview audit record types to collect. (Default: copilotInteraction)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [copilot_usage://<name>]
 account = Select an account with provider Microsoft 365 Copilot.
 index = (Default: default)
 interval = (Default: 86400)
 period = (Default: D7)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [selfhosted_monitor://<name>]
 account = Select an account with provider Self-hosted / Open-source.
 collect_metrics = Scrape the metrics endpoint (vLLM / LiteLLM). Ignored for server types without Prometheus metrics. (Default: true)
@@ -119,13 +63,6 @@ index = (Default: default)
 interval = Polling interval in seconds. (Default: 300)
 metrics_path = (Default: /metrics)
 metrics_prefixes = Comma-separated prefixes of Prometheus metric families to ingest. (Default: vllm:,litellm_,ollama_)
-python.required = {3.7|3.9|3.13}
-* For Python scripts only, selects which Python version to use.
-* Set to "3.9" to use the Python 3.9 version.
-* Set to "3.13" to use the Python 3.13 version.
-* Optional.
-* Default: not set
-
 [anthropic_compliance]
 * Scheme-level defaults inherited by every configured input of this type.
 python.version =
