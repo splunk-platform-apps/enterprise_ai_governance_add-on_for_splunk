@@ -48,7 +48,7 @@ jobs:
           echo "=== all btool non-Checking output (first 80 lines) ==="
           docker exec -u splunk spl /opt/splunk/bin/splunk btool check --debug 2>&1 | grep -v '^Checking' | head -80 || true
 
-      - name: ORACLE 2 — restart and read raw SpecFiles events
+      - name: ORACLE 2 — true stop/start, then replay the gate search with _raw
         run: |
           for i in $(seq 1 45); do
             if docker exec -u splunk spl /opt/splunk/bin/splunk status 2>/dev/null | grep -q 'splunkd is running'; then
@@ -56,14 +56,22 @@ jobs:
             fi
             sleep 10
           done
-          docker exec -u splunk spl /opt/splunk/bin/splunk restart >/dev/null 2>&1 || true
-          for i in $(seq 1 24); do
+          docker exec -u splunk spl /opt/splunk/bin/splunk stop || true
+          for i in $(seq 1 12); do
+            docker exec -u splunk spl /opt/splunk/bin/splunk status 2>/dev/null | grep -q 'not running' && { echo "stopped after ~$((i*5))s"; break; }
+            sleep 5
+          done
+          docker exec -u splunk spl /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt >/dev/null 2>&1 || true
+          for i in $(seq 1 30); do
             if docker exec -u splunk spl /opt/splunk/bin/splunk status 2>/dev/null | grep -q 'splunkd is running'; then
-              echo "splunkd back after ~$((i*10))s"; break
+              echo "restarted after ~$((i*10))s"; break
             fi
             sleep 10
           done
-          echo "=== SpecFiles blocks in splunkd.log ==="
-          docker exec -u splunk spl bash -c "grep -n -B2 -A15 'SpecFiles' /opt/splunk/var/log/splunk/splunkd.log | tail -120" || true
-          echo "=== every TA-ai-governance line in splunkd.log ==="
-          docker exec -u splunk spl bash -c "grep -n 'TA-ai-governance' /opt/splunk/var/log/splunk/splunkd.log | head -40" || true
+          echo "=== grep: app lines with WARN/ERROR in fresh splunkd.log ==="
+          docker exec -u splunk spl bash -c "grep -E 'WARN|ERROR' /opt/splunk/var/log/splunk/splunkd.log | grep 'TA-ai-governance' | head -25" || true
+          echo "=== grep: ALL app lines in fresh splunkd.log ==="
+          docker exec -u splunk spl bash -c "grep -c 'TA-ai-governance' /opt/splunk/var/log/splunk/splunkd.log; grep 'TA-ai-governance' /opt/splunk/var/log/splunk/splunkd.log | head -25" || true
+          echo "=== waiting 60s for _internal indexing, then replaying the org gate search with _raw ==="
+          sleep 60
+          docker exec spl bash -c "curl -sk -u admin:ChangeMe123! https://localhost:8089/services/search/jobs -d output_mode=json -d exec_mode=oneshot -d earliest_time=-24h -d latest_time=now --data-urlencode 'search=search index=_internal sourcetype=splunkd \"TA-ai-governance\" (ERROR OR WARN) | head 20 | table _time component log_level _raw'" | python3 -c "import json,sys; [print('---\n', r.get('_raw','(no _raw)')) for r in json.load(sys.stdin).get('results',[])]" || true
