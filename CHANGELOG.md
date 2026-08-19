@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.1] - 2026-08-18
+
+### Added
+
+- **User filter** on the *AI Usage & Cost* dashboard. The cost, token, per-model and line-item panels filter on `aigov_user`; the two Microsoft 365 Copilot panels filter on `userPrincipalName`, the field the Copilot usage report identifies users by. Defaults to `*` and is interpolated through the `|s` token filter like the other dashboard inputs
+
+### Fixed
+
+- The **Provider** multiselect on *AI Governance Overview*, *AI Security Audit* and *AI Usage & Cost* returned zero events whenever more than one provider was selected: the `|s` escaping introduced in 1.0.4 quoted the comma-joined selection as a single literal string (`aigov_provider IN ("anthropic,openai")`), which matches no event. All 25 affected panel searches now expand the selection inside a `makeresults` subsearch — `split` on the delimiter, an allowlist `replace`, then `format` — so each value is quoted individually. The 1.0.4 injection-safety guarantee is preserved: the token still passes through `|s`, and the allowlist strips every character outside `[A-Za-z0-9_*,-]` before the value can reach the generated search string
+- Silenced the SpecFiles warnings splunkd logged at every boot — one per input type, nine per start. The UCC build framework emits a `python.required` parameter into the generated `README/inputs.conf.spec`, and Splunk's modular-input scheme parser rejects dotted parameter names (a parameter must match `[0-9a-zA-Z][0-9a-zA-Z_-]*`), logging a WARN per scheme on every startup. The spec is now maintained at `package/README/inputs.conf.spec` without those lines; it also declares the scheme-level default stanzas alongside the `[scheme://<name>]` forms, and the unused `python.required` key was dropped from `inputs.conf`. Note: new inputs or argument changes in `globalConfig.json` must be mirrored in the source-maintained spec
+
 ## [1.1.0] - 2026-08-12
 
 ### Added

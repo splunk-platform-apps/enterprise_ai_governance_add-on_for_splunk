@@ -18,13 +18,17 @@
       <default>*</default>
       <delimiter>,</delimiter>
     </input>
+    <input type="text" token="user_tok">
+      <label>User filter</label>
+      <default>*</default>
+    </input>
   </fieldset>
   <row>
     <panel>
       <single>
         <title>Total Cost (all providers)</title>
         <search>
-          <query>`aigov_cost` aigov_provider IN ($provider_tok|s$) | eval cost=coalesce('amount.value', cost, amount) | stats sum(cost) as total | eval total=round(total,2)</query>
+          <query>`aigov_cost` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval cost=coalesce('amount.value', cost, amount) | stats sum(cost) as total | eval total=round(total,2)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -36,7 +40,7 @@
       <single>
         <title>Input Tokens</title>
         <search>
-          <query>`aigov_usage` aigov_provider IN ($provider_tok|s$) | eval in_tok=coalesce(input_tokens, prompt_tokens) | stats sum(in_tok)</query>
+          <query>`aigov_usage` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval in_tok=coalesce(input_tokens, prompt_tokens) | stats sum(in_tok)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -47,7 +51,7 @@
       <single>
         <title>Output Tokens</title>
         <search>
-          <query>`aigov_usage` aigov_provider IN ($provider_tok|s$) | eval out_tok=coalesce(output_tokens, completion_tokens) | stats sum(out_tok)</query>
+          <query>`aigov_usage` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval out_tok=coalesce(output_tokens, completion_tokens) | stats sum(out_tok)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -58,7 +62,7 @@
       <single>
         <title>Copilot Active Users (last report)</title>
         <search>
-          <query>`aigov_index` sourcetype="aigov:copilot:usage" lastActivityDate=* | stats dc(userPrincipalName)</query>
+          <query>`aigov_index` sourcetype="aigov:copilot:usage" lastActivityDate=* userPrincipalName=$user_tok|s$ | stats dc(userPrincipalName)</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -71,7 +75,7 @@
       <chart>
         <title>Daily Cost by Provider</title>
         <search>
-          <query>`aigov_cost` aigov_provider IN ($provider_tok|s$) | eval cost=coalesce('amount.value', cost, amount) | timechart span=1d sum(cost) by aigov_product</query>
+          <query>`aigov_cost` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval cost=coalesce('amount.value', cost, amount) | timechart span=1d sum(cost) by aigov_product</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -84,7 +88,7 @@
       <chart>
         <title>Token Usage Over Time</title>
         <search>
-          <query>`aigov_usage` aigov_provider IN ($provider_tok|s$) | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | timechart span=1d sum(in_tok) as input sum(out_tok) as output</query>
+          <query>`aigov_usage` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | timechart span=1d sum(in_tok) as input sum(out_tok) as output</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -98,7 +102,7 @@
       <table>
         <title>Usage by Model</title>
         <search>
-          <query>`aigov_usage` aigov_provider IN ($provider_tok|s$) model=* | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | stats sum(in_tok) as input_tokens sum(out_tok) as output_tokens sum(num_model_requests) as requests by model aigov_product | sort - input_tokens</query>
+          <query>`aigov_usage` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ model=* | eval in_tok=coalesce(input_tokens, prompt_tokens), out_tok=coalesce(output_tokens, completion_tokens) | stats sum(in_tok) as input_tokens sum(out_tok) as output_tokens sum(num_model_requests) as requests by model aigov_product | sort - input_tokens</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -109,7 +113,7 @@
       <table>
         <title>Cost by Line Item / Project</title>
         <search>
-          <query>`aigov_cost` aigov_provider IN ($provider_tok|s$) | eval cost=coalesce('amount.value', cost, amount) | eval item=coalesce(line_item, project_id, description, "unattributed") | stats sum(cost) as total_cost by item aigov_product | eval total_cost=round(total_cost,2) | sort - total_cost | head 20</query>
+          <query>`aigov_cost` [| makeresults | eval aigov_provider=split(replace($provider_tok|s$, "[^\w*,-]", ""), ",") | fields aigov_provider | format] aigov_user=$user_tok|s$ | eval cost=coalesce('amount.value', cost, amount) | eval item=coalesce(line_item, project_id, description, "unattributed") | stats sum(cost) as total_cost by item aigov_product | eval total_cost=round(total_cost,2) | sort - total_cost | head 20</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
@@ -122,7 +126,7 @@
       <table>
         <title>Microsoft 365 Copilot Usage by User (latest report)</title>
         <search>
-          <query>`aigov_index` sourcetype="aigov:copilot:usage" | stats latest(lastActivityDate) as last_activity latest(microsoftTeamsCopilotLastActivityDate) as teams latest(wordCopilotLastActivityDate) as word latest(excelCopilotLastActivityDate) as excel latest(outlookCopilotLastActivityDate) as outlook by userPrincipalName | sort - last_activity | head 50</query>
+          <query>`aigov_index` sourcetype="aigov:copilot:usage" userPrincipalName=$user_tok|s$ | stats latest(lastActivityDate) as last_activity latest(microsoftTeamsCopilotLastActivityDate) as teams latest(wordCopilotLastActivityDate) as word latest(excelCopilotLastActivityDate) as excel latest(outlookCopilotLastActivityDate) as outlook by userPrincipalName | sort - last_activity | head 50</query>
           <earliest>$time_range.earliest$</earliest>
           <latest>$time_range.latest$</latest>
         </search>
