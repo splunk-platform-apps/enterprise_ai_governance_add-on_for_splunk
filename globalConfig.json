@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-ai-governance",
         "restRoot": "TA-ai-governance",
-        "version": "1.1.1",
+        "version": "1.1.2",
         "displayName": "Enterprise AI Governance Add-on for Splunk",
         "schemaVersion": "0.0.10",
         "navColor": "#5C6BC0",

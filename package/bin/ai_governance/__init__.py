@@ -8,7 +8,7 @@ ADDON_NAME = "TA-ai-governance"
 
 # Only reached when app.manifest cannot be read; tests/test_version_sync.py
 # keeps it level with the manifest, globalConfig.json, app.conf and CHANGELOG.
-_FALLBACK_VERSION = "1.1.1"
+_FALLBACK_VERSION = "1.1.2"
 
 # Deliberately narrow - this value goes out in an HTTP header.
 _VERSION_RE = re.compile(r"^[0-9A-Za-z.+-]{1,32}$")

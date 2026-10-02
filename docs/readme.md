@@ -57,7 +57,7 @@ This is the step worth doing carefully — most setup failures come from using a
 
 | Provider | What you need |
 |---|---|
-| Anthropic Claude Enterprise | An Admin/Compliance API key (`sk-ant-admin...`, sent as `x-api-key`) for the activity feed and users/groups directory; optionally an Analytics key with the `read:analytics` scope (sent as a `Bearer` token) for usage, cost and adoption data |
+| Anthropic Claude Enterprise | An Admin/Compliance API key (`sk-ant-admin...`, sent as `x-api-key`) for the activity feed and users/groups directory; optionally an Analytics key with the `read:analytics` scope (also sent as `x-api-key`) for usage, cost and adoption data |
 | OpenAI (platform) | An organization **Admin API key** (`sk-admin-...`, sent as a `Bearer` token) with `api.audit_logs.read` and usage scopes. Only an organization **Owner** can create one, at platform.openai.com → **Settings → Organization → Admin keys**. Project keys (`sk-proj-...`) and user keys (`sk-...`) cannot read audit logs, and neither can an admin key minted without the audit-logs scope |
 | OpenAI (ChatGPT Enterprise compliance) | A separate **Compliance API key** (sent as a `Bearer` token to `api.chatgpt.com`), plus the ChatGPT **workspace ID** (a UUID) or API Platform **organization ID** (`org-...`) it is scoped to. An organization **Owner** creates the key and OpenAI must approve the Compliance API scopes on it. Requires ChatGPT Enterprise, Edu or ChatGPT for Teachers — the platform Admin API key above will not work for this input, and vice versa |
 | Google Gemini (Workspace) | An OAuth client ID and client secret plus a refresh token authorized by a Workspace admin for the scope `https://www.googleapis.com/auth/admin.reports.audit.readonly` |
