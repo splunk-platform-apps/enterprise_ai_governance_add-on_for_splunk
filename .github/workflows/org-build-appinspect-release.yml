@@ -22,3 +22,5 @@ permissions:
 jobs:
   call-workflow:
     uses: splunk-platform-apps/.github/.github/workflows/reusable-build-appinspect-release.yml@v1
+    with:
+      caller-repo-name: ${{ github.event.repository.name }}
