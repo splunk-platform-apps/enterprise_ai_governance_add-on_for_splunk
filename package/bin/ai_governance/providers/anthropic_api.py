@@ -37,8 +37,10 @@ class AnthropicAPI:
         }
 
     def _analytics_headers(self):
+        # API keys authenticate via x-api-key on every /v1/organizations
+        # endpoint; Authorization: Bearer is reserved for OAuth tokens.
         return {
-            "Authorization": f"Bearer {self._analytics_key}",
+            "x-api-key": self._analytics_key,
             "anthropic-version": ANTHROPIC_VERSION,
         }
 

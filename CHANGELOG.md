@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.2] - 2026-08-19
+
+### Fixed
+
+- Anthropic Analytics requests now authenticate with the `x-api-key` header, the scheme the compliance and directory requests already use. The analytics summaries, usage and cost endpoints under `/v1/organizations` accept API keys only through `x-api-key` — `Authorization: Bearer` is reserved for OAuth tokens, which the add-on does not issue — so sending the Analytics API key as a Bearer token caused every analytics request to fail authentication and usage/cost collection never ingested anything
+- Documentation: the provider credentials table now states that the Anthropic Analytics key is sent as `x-api-key`; it previously described the Bearer scheme the broken client used
+
 ## [1.1.1] - 2026-08-18
 
 ### Added
