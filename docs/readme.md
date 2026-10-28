@@ -1,6 +1,6 @@
 # Enterprise AI Governance Add-on for Splunk
 
-The Enterprise AI Governance Add-on for Splunk (`TA-ai-governance`) collects audit, directory, usage, cost and health data from enterprise AI platforms into Splunk — one add-on, one normalized schema, provider-agnostic dashboards and alerts. Anthropic Claude Enterprise, OpenAI (ChatGPT Enterprise / API Platform), Google Gemini (Workspace), Microsoft 365 Copilot and self-hosted LLM servers land in the same index with the same field vocabulary, so a search, dashboard or alert written once works across every provider you run.
+The Enterprise AI Governance Add-on for Splunk (`TA-ai-governance`) collects audit, directory, usage, cost and health data from enterprise AI platforms into Splunk — one add-on, one normalized schema, and alerts. Anthropic Claude Enterprise, OpenAI (ChatGPT Enterprise / API Platform), Google Gemini (Workspace), Microsoft 365 Copilot and self-hosted LLM servers land in the same index with the same field vocabulary, so a search, or an alert written once works across every provider you run.
 
 The add-on is built with the [UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) (`splunk-add-on-ucc-framework` 6.5.x), runs on the Splunk-bundled Python 3 interpreter, and uses `solnlib`, `splunktaucclib` and the Splunk Python SDK (bundled at build time — nothing to install separately).
 
@@ -18,8 +18,7 @@ Every provider permission the add-on asks for is a read scope: it does not modif
   | Microsoft 365 Copilot | Purview audit records (`copilotInteraction`) via Microsoft Graph; per-user usage reports | `copilot_audit`, `copilot_usage` |
   | Self-hosted LLM servers (vLLM, Ollama, LiteLLM, any OpenAI-compatible) | Model inventory, Prometheus metrics, runtime info, health checks | `selfhosted_monitor` |
 
-* **Normalized schema** — every event carries `aigov_provider`, `aigov_product`, `aigov_category`, `aigov_action`, `aigov_user` and `aigov_src_ip`, so dashboards, macros and alerts work identically across providers.
-* **Five dashboards** — AI Governance Overview (default view), AI Security Audit, AI Usage & Cost Monitoring, Self-Hosted & Open-Source Models, and AI Compliance & Directory.
+* **Normalized schema** — every event carries `aigov_provider`, `aigov_product`, `aigov_category`, `aigov_action`, `aigov_user` and `aigov_src_ip`.
 * **Eight ready-made alerts** (shipped disabled) — API key lifecycle, admin/SSO changes, data exports, new users, off-hours spikes, spend thresholds, new self-hosted models, server-down.
 * **KV Store checkpoints** (collection `ta_ai_governance_checkpoints`) — inputs resume where they left off across restarts; checkpoint storage is designed to support search head clustering (not yet validated).
 * **Encrypted credentials** — all API keys and secrets are stored in Splunk secure storage, never in plain-text conf files.
@@ -27,19 +26,19 @@ Every provider permission the add-on asks for is a read scope: it does not modif
 
 ## Getting Started
 
-> The add-on polls each configured provider's admin/audit APIs on a schedule, normalizes the responses into `aigov_*` fields, and indexes them for the bundled dashboards and alerts.
+> The add-on polls each configured provider's admin/audit APIs on a schedule, normalizes the responses into `aigov_*` fields, and indexes them for the bundled alerts.
 
 ### Requirements
 
 * Splunk Cloud Platform, or Splunk Enterprise 10.x — standalone (distributed and search head cluster deployments are not yet validated).
 * HTTPS egress from the instance running the inputs to the provider APIs you enable (or to your self-hosted LLM servers).
-* Admin-level API credentials for at least one supported provider (see [Configuration](#configuration) for the exact keys, scopes and permissions).
+* Credentials with the required permissions for each provider you enable, self-hosted servers may not require a key. See [Configuration](#configuration) for the exact keys, scopes and permissions.
 
 ### Installation
 
 Download the packaged add-on from the [releases page](https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/releases) and install it following the [Splunk documentation](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
 
-**Install this add-on on the search head.** Dashboards, macros, alerts and the modular inputs all run there in the validated standalone topology. Distributed and search head cluster deployments are designed for (KV Store checkpointing keeps inputs restartable across members) but have not yet been validated — hold off on those topologies until a release announces support.
+**Install this add-on on the search head.** Modular inputs all run there in the validated standalone topology. Distributed and search head cluster deployments are designed for (KV Store checkpointing keeps inputs restartable across members) but have not yet been validated — hold off on those topologies until a release announces support.
 
 On Splunk Cloud Platform, install as a private app (self-service app install / ACS).
 
@@ -47,7 +46,7 @@ On Splunk Cloud Platform, install as a private app (self-service app install / A
 
 Setup runs entirely through the add-on's configuration UI — no custom code or scripting. The steps below take roughly 15 minutes.
 
-#### Step 1: Create an index
+#### Step 1: Create a common index
 
 Create an events index for the data. This guide uses `ai_governance`.
 
@@ -70,7 +69,7 @@ Open **Configuration → AI Provider Accounts → Add**, pick a provider and ent
 
 #### Step 4: Create inputs
 
-Open **Inputs → Create New Input**, pick the input type (`anthropic_compliance`, `anthropic_analytics`, `openai_compliance`, `openai_audit`, `openai_usage`, `gemini_audit`, `copilot_audit`, `copilot_usage` or `selfhosted_monitor`), select the account you created, and set **Index** to your index. Audit inputs backfill 7 days of history on their first run by default, so the dashboards have data immediately rather than filling in over the following week.
+Open **Inputs → Create New Input**, pick the input type (`anthropic_compliance`, `anthropic_analytics`, `openai_compliance`, `openai_audit`, `openai_usage`, `gemini_audit`, `copilot_audit`, `copilot_usage` or `selfhosted_monitor`), select the account you created, and set **Index** to your index. Audit inputs backfill 7 days of history on their first run by default.
 
 Two settings on **OpenAI Compliance Logs (ChatGPT Enterprise)** deserve a decision rather than a default:
 
@@ -79,11 +78,7 @@ Two settings on **OpenAI Compliance Logs (ChatGPT Enterprise)** deserve a decisi
 
 The Compliance Logs Platform retains roughly 30 days of history, so the backfill window on this input is capped at 30 days and continuous collection is the point of running it.
 
-#### Step 5: Point the `aigov_index` macro at your index
-
-Every dashboard, macro and alert builds on one search macro. Under **Settings → Advanced search → Search macros** (app context `TA-ai-governance`), edit `aigov_index` and set its definition to `index=ai_governance`.
-
-#### Step 6: Verify data is flowing
+#### Step 5: Verify data is flowing
 
 Wait one collection interval, then run:
 
@@ -91,59 +86,14 @@ Wait one collection interval, then run:
 | tstats count where index=ai_governance by sourcetype
 ```
 
-Or, once the `aigov_index` macro is set:
-
-```
-`aigov_all` | stats count by aigov_provider, sourcetype
-```
-
-#### Step 7: Enable the alerts that match your policy
+#### Step 6: Enable the alerts that match your policy
 
 Under **Settings → Searches, reports, and alerts** (app context `TA-ai-governance`), enable the alerts you want and tune their thresholds. All eight ship disabled, so nothing fires until you decide it should.
 
 Logging verbosity can be changed under **Configuration → Logging**.
 
-### Usage
+#### Step 7: Usage
 
-Open the dashboards from the navigation bar, starting with **AI Governance Overview** (the default view).
-
-Category macros (`aigov_all`, `aigov_audit`, `aigov_directory`, `aigov_usage`, `aigov_cost`, `aigov_selfhosted`) and cross-provider action macros (`aigov_signin_actions`, `aigov_admin_actions`, `aigov_key_actions`, `aigov_export_actions`) are available for your own searches, along with event types and tags for correlation. Because the schema is provider-agnostic, one search spans the estate:
-
-```
-`aigov_audit` `aigov_export_actions` | stats count by aigov_provider, aigov_user
-```
-
-## Dashboards
-
-### AI Governance Overview
-
-Cross-provider view of AI platform activity, adoption and data collection health. Panels: Total AI Events, Active AI Users, Providers Reporting, Admin / Security Changes, AI Activity Over Time by Provider, Event Volume by Provider, Daily Active Users by Provider, Top Actions Across Providers, Most Active Users, Data Collection Health (last event per sourcetype).
-
-![AI Governance Overview dashboard showing total events, active users, providers reporting and admin/security changes, with activity over time and top actions across providers](img/dashboard-ai-governance-overview.png)
-
-### AI Security Audit
-
-Security-relevant activity across AI providers: sign-ins, admin changes, key lifecycle and data movement. Panels: Sign-in Events, Admin / SSO Changes, API Key Changes, Data Export / File Events, Security-Relevant Events Over Time, Activity by Hour of Day (off-hours detection), Admin, SSO and Key Lifecycle Events, Source IPs with Multiple Users, Data Movement Detail.
-
-![AI Security Audit dashboard showing sign-in, admin/SSO, API key and data export counts with an events-over-time chart and an admin, SSO and key lifecycle event table](img/dashboard-ai-security-audit.png)
-
-### AI Usage & Cost Monitoring
-
-Token usage, spend and adoption across AI providers. Panels: Total Cost (all providers), Input Tokens, Output Tokens, Copilot Active Users (last report), Daily Cost by Provider, Token Usage Over Time, Usage by Model, Cost by Line Item / Project, Microsoft 365 Copilot Usage by User (latest report), Anthropic Adoption Summary (latest).
-
-![AI Usage and Cost Monitoring dashboard showing total cost, input and output token counts, daily cost by provider, token usage over time and usage by model](img/dashboard-ai-usage-cost-monitoring.png)
-
-### Self-Hosted & Open-Source Models
-
-Inventory, availability, throughput and governance for self-hosted LLM servers (Ollama, vLLM, LiteLLM, OpenAI-compatible). Panels: Servers Monitored, Servers Down (latest check), Models Served, Model Inventory Changes, Server Availability & Latency, Request / Token Counters (Prometheus), Model Inventory (current), Model Inventory Change Audit (added / removed), Currently Loaded Models (Ollama).
-
-![Self-Hosted and Open-Source Models dashboard showing servers monitored, servers down, models served, availability and latency charts, Prometheus counters and a current model inventory table](img/dashboard-self-hosted-models.png)
-
-### AI Compliance & Directory
-
-User lifecycle, directory posture and compliance-relevant activity across AI providers. Panels: Anthropic Provisioned Users, OpenAI Provisioned Users, Invites / User Adds, User Removals, User Lifecycle Events Over Time, Anthropic Users by Role (latest snapshot), Provisioned Users Without Recent Activity (30d), Shadow Users: Active but Not in Directory, ChatGPT Enterprise Compliance Logs by Type, Compliance Records With Content Redacted, Most Active ChatGPT Enterprise Users, Compliance-Relevant Events (exports, retention, policy).
-
-![AI Compliance and Directory dashboard showing provisioned user counts, user lifecycle events over time, users by role, inactive provisioned users and shadow users active but not in the directory](img/dashboard-ai-compliance-directory.png)
 
 ## Alerts
 
@@ -192,7 +142,6 @@ index=_internal source=*ta_ai_governance* (ERROR OR WARN*)
 | OpenAI Compliance Logs: `401` / `403` | The platform Admin API key was used instead of a **Compliance API key**, the Compliance scopes have not been approved by OpenAI yet, or the workspace / organization ID does not match the key. Test it outside Splunk: `curl -sS "https://api.chatgpt.com/v1/compliance/workspaces/$WORKSPACE_ID/logs?limit=1&event_type=AUTH_LOG&after=2026-01-01T00:00:00Z" -H "Authorization: Bearer $COMPLIANCE_KEY"` (use `organizations/org-...` in place of `workspaces/...` for an API Platform org ID) |
 | OpenAI Compliance Logs: one event type is skipped with a warning | That event type is not available to your workspace. Check the list in the Compliance API reference at `chatgpt.com/admin/api-reference` and correct the input's **Event types** field; the remaining types keep collecting |
 | OpenAI Compliance Logs: events arrive without prompt text | Expected — **Index full message content** is off by default and events carry `aigov_content_redacted=true`. Enable it on the input only after confirming your index retention and access controls allow storing conversation content |
-| Dashboards empty but data is in the index | The `aigov_index` macro still points at its default — set it to your index |
 | Gemini input returns nothing | Reports API events can lag; confirm the refresh token was authorized by a Workspace admin for the audit-readonly scope |
 | Copilot input returns nothing | Purview auditing enabled for the tenant? Admin consent granted? Audit records can take a while to appear |
 | Self-hosted input fails to connect | Base URL reachable from the Splunk instance? Using HTTP without the explicit HTTP opt-in? |
