@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [1.2.0] - 2026-10-28
 
-
 ### Removed
 
 - Dashboards: Visualizations are not part of the add-on anymore.
 - Macros
+- Alert actions
 
 ## [1.1.2] - 2026-08-19
 
