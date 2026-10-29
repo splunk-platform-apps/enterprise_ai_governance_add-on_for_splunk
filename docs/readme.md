@@ -79,7 +79,7 @@ Two settings on **OpenAI Compliance Logs (ChatGPT Enterprise)** deserve particul
 
 The Compliance Logs Platform retains roughly 30 days of history, so the backfill window on this input is capped at 30 days. Continuous collection is important for retaining these records in Splunk.
 
-#### Step 5: Verify data is flowing
+#### Step 5: Verify data
 
 Wait one collection interval, then run:
 
@@ -87,9 +87,17 @@ Wait one collection interval, then run:
 | tstats count where index=ai_governance by sourcetype
 ```
 
-Replace `ai_governance` if you configured a different index. Logging verbosity can be changed under **Configuration → Logging**.
+## Usage
 
-To visualize the collected data or use the packaged search macros and alerts, install the Enterprise AI Governance App for Splunk and follow its configuration guide.
+Once data is flowing, search your `ai_governance` index to explore AI provider activity across your organization:
+
+```spl
+index=ai_governance | head 20
+```
+
+Use the `aigov_*` normalized fields to correlate events across providers — for example, by user, action, or timestamp. Refer to the [Data reference](#data-reference) section below for the complete list of sourcetypes and field mappings.
+
+For dashboards, visualizations, and pre-built searches, install the [Enterprise AI Governance App for Splunk](https://github.com/splunk-platform-apps/enterprise_ai_governance_app_for_splunk).
 
 ## Data reference
 
