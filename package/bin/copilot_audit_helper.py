@@ -1,7 +1,8 @@
 import import_declare_test  # noqa: F401 isort: skip
-
 from ai_governance.inputs.copilot_audit import (
     stream_events as _stream_events,
+)
+from ai_governance.inputs.copilot_audit import (
     validate_input as _validate_input,
 )
 

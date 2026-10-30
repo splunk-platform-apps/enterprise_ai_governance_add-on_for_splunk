@@ -16,8 +16,8 @@ from ai_governance import (
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope, normalize_anthropic_activity
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.anthropic_api import AnthropicAPI
 
 DIRECTORY_SNAPSHOT_SECONDS = 12 * 3600
@@ -145,7 +145,8 @@ def _collect_directory(
                 event_time=snapshot_time,
             )
             count += 1
-    except Exception as exc:  # groups endpoint may be unavailable for some plans
+    except Exception as exc:  # noqa: BLE001
+        # groups endpoint may be unavailable for some plans
         logger.info("Skipping Anthropic groups snapshot: %s", exc)
 
     checkpoint.update(ckpt_key, last_directory_snapshot=now)

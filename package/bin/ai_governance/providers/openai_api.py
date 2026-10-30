@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
 from collections.abc import Iterator
+from typing import Any
 
 from ai_governance import OPENAI_API_BASE
 from ai_governance.http_client import JsonHttpClient

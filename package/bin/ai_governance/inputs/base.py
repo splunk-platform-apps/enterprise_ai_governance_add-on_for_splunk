@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from solnlib import log
 from splunklib import modularinput as smi
@@ -22,10 +22,9 @@ def run_input(
         normalized_input_name = input_name.split("/")[-1]
         logger = logger_for_input(f"{input_type}_{normalized_input_name}")
         session_key = inputs.metadata["session_key"]
-        try:
-            configure_logger(logger, session_key)
-        except Exception:
-            pass  # fall back to default level rather than dropping collection
+
+        configure_logger(logger, session_key)
+
         log.modular_input_start(logger, normalized_input_name)
         try:
             count = collect(
@@ -44,7 +43,7 @@ def run_input(
                 account=input_item.get("account"),
             )
             log.modular_input_end(logger, normalized_input_name)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             log.log_exception(
                 logger,
                 exc,

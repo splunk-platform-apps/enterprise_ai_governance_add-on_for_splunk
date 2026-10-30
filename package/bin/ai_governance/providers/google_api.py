@@ -8,8 +8,8 @@ https://admin.googleapis.com/admin/reports/v1.
 from __future__ import annotations
 
 import time
-from typing import Any
 from collections.abc import Iterator
+from typing import Any
 
 from ai_governance import GOOGLE_REPORTS_BASE, GOOGLE_TOKEN_URL
 from ai_governance.http_client import APIError, JsonHttpClient

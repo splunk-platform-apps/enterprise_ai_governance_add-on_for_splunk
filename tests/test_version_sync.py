@@ -19,8 +19,6 @@ Org CI runs ``pre-commit run --all-files`` on every pull request, so the hook
 is the gate; nothing here may depend on anything outside the standard library.
 """
 
-import ast
-import configparser
 import json
 import os
 import re

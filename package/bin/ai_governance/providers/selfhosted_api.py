@@ -12,8 +12,8 @@ Ollama endpoints. Collects governance-relevant signals only:
 from __future__ import annotations
 
 import time
-from typing import Any
 from collections.abc import Iterator
+from typing import Any
 
 from ai_governance.http_client import JsonHttpClient
 
