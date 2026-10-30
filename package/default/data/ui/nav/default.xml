@@ -1,7 +1,7 @@
 <nav>
-    <view name="inputs"/>
+    <view name="inputs" default="true"/>
     <view name="configuration"/>
+    <view name="search"/>
     <a href="https://splunk-platform-apps.github.io/enterprise_ai_governance_add-on_for_splunk/" target="_blank">Documentation</a>
     <a href="https://github.com/splunk-platform-apps/enterprise_ai_governance_add-on_for_splunk/issues" target="_blank">Report an issue</a>
-    <view name="search"/>
 </nav>
