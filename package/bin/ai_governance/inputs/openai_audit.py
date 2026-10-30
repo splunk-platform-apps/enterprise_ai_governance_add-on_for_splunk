@@ -12,8 +12,8 @@ from ai_governance.account import get_account_config, require_fields, require_pr
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope, normalize_openai_audit
 from ai_governance.http_client import APIError
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.openai_api import OpenAIAPI
 
 DIRECTORY_SNAPSHOT_SECONDS = 12 * 3600
@@ -104,7 +104,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
             count += _collect_users(
                 logger, api, checkpoint, ckpt_key, account_name, index, event_writer
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "OpenAI user directory snapshot failed: %s - audit log "
                 "collection is unaffected; the users API needs an additional "

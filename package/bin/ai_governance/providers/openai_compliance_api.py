@@ -22,8 +22,8 @@ Reference: https://cookbook.openai.com/examples/chatgpt/compliance_api/logs_plat
 from __future__ import annotations
 
 import json
-from typing import Any
 from collections.abc import Iterator
+from typing import Any
 from urllib.parse import quote
 
 from ai_governance import OPENAI_COMPLIANCE_API_BASE

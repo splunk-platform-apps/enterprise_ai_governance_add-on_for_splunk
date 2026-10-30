@@ -20,8 +20,8 @@ from ai_governance import PROVIDER_MICROSOFT, ST_COPILOT_INTERACTION
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import normalize_copilot_record
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_csv, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.microsoft_api import MicrosoftGraphAPI
 
 DEFAULT_RECORD_TYPES = ("copilotInteraction",)

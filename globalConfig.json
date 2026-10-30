@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-ai-governance",
         "restRoot": "TA-ai-governance",
-        "version": "1.1.2",
+        "version": "1.2.0",
         "displayName": "Enterprise AI Governance Add-on for Splunk",
         "schemaVersion": "0.0.10",
         "navColor": "#5C6BC0",
@@ -12,6 +12,7 @@
             "dark"
         ],
         "supportedPythonVersion": [
+            "3.9",
             "3.13"
         ]
     },
@@ -812,6 +813,7 @@
                             "label": "Name",
                             "field": "name",
                             "required": true,
+                            "help": "Enter a unique name for this input.",
                             "validators": [
                                 {
                                     "type": "regex",
@@ -887,7 +889,18 @@
                             "type": "text",
                             "label": "Max events per cycle",
                             "field": "max_events_per_cycle",
+                            "help": "Maximum number of events to collect per cycle.",
                             "defaultValue": "2000",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        100,
+                                        5000
+                                    ],
+                                    "errorMsg": "Max events per cycle must be between 100 and 5000"
+                                }
+                            ],
                             "required": false
                         },
                         {
@@ -910,6 +923,7 @@
                             "type": "text",
                             "label": "Name",
                             "field": "name",
+                            "help": "Enter a unique name for this input.",
                             "required": true,
                             "validators": [
                                 {
@@ -986,6 +1000,7 @@
                             "type": "checkbox",
                             "label": "Collect usage reports",
                             "field": "collect_usage",
+                            "help": "Enable or disable collection of usage reports.",
                             "defaultValue": true,
                             "required": false
                         },
@@ -993,6 +1008,7 @@
                             "type": "checkbox",
                             "label": "Collect cost reports",
                             "field": "collect_cost",
+                            "help": "Enable or disable collection of cost reports.",
                             "defaultValue": true,
                             "required": false
                         },
@@ -1000,6 +1016,7 @@
                             "type": "checkbox",
                             "label": "Collect adoption summaries",
                             "field": "collect_summaries",
+                            "help": "Enable or disable collection of adoption summaries.",
                             "defaultValue": true,
                             "required": false
                         }
@@ -1015,6 +1032,7 @@
                             "type": "text",
                             "label": "Name",
                             "field": "name",
+                            "help": "Enter a unique name for this input.",
                             "required": true,
                             "validators": [
                                 {
@@ -1124,9 +1142,9 @@
                                     "type": "number",
                                     "range": [
                                         1,
-                                        5000
+                                        100
                                     ],
-                                    "errorMsg": "Max log files per cycle must be between 1 and 5000."
+                                    "errorMsg": "Max log files per cycle must be between 1 and 100."
                                 }
                             ]
                         },
@@ -1151,6 +1169,7 @@
                             "label": "Name",
                             "field": "name",
                             "required": true,
+                            "help": "Enter a unique name for this input.",
                             "validators": [
                                 {
                                     "type": "regex",
@@ -1226,7 +1245,18 @@
                             "type": "text",
                             "label": "Max events per cycle",
                             "field": "max_events_per_cycle",
+                            "help": "Maximum number of events to collect per cycle.",
                             "defaultValue": "2000",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        100,
+                                        5000
+                                    ],
+                                    "errorMsg": "Max events per cycle must be between 1 and 100"
+                                }
+                            ],
                             "required": false
                         },
                         {
@@ -1249,6 +1279,7 @@
                             "type": "text",
                             "label": "Name",
                             "field": "name",
+                            "help": "Enter a unique name for this input.",
                             "required": true,
                             "validators": [
                                 {
@@ -1324,6 +1355,7 @@
                             "type": "singleSelect",
                             "label": "Bucket width",
                             "field": "bucket_width",
+                            "help": "Select the width of the data collection bucket.",
                             "defaultValue": "1d",
                             "required": false,
                             "options": {
@@ -1344,6 +1376,7 @@
                             "type": "checkbox",
                             "label": "Collect token usage",
                             "field": "collect_usage",
+                            "help": "Enable this option to collect token usage data.",
                             "defaultValue": true,
                             "required": false
                         },
@@ -1351,6 +1384,7 @@
                             "type": "checkbox",
                             "label": "Collect costs",
                             "field": "collect_costs",
+                            "help": "Enable this option to collect cost data.",
                             "defaultValue": true,
                             "required": false
                         }
@@ -1366,6 +1400,7 @@
                             "type": "text",
                             "label": "Name",
                             "field": "name",
+                            "help": "Enter a unique name for this input.",
                             "required": true,
                             "validators": [
                                 {
@@ -1441,7 +1476,18 @@
                             "type": "text",
                             "label": "Max events per cycle",
                             "field": "max_events_per_cycle",
+                            "help": "Maximum number of events to collect per cycle.",
                             "defaultValue": "5000",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        100,
+                                        5000
+                                    ],
+                                    "errorMsg": "Maximum events per cycle must be between 1 and 1000."
+                                }
+                            ],
                             "required": false
                         },
                         {
@@ -1463,6 +1509,7 @@
                         {
                             "type": "text",
                             "label": "Name",
+                            "help": "Enter a unique name for this input.",
                             "field": "name",
                             "required": true,
                             "validators": [
@@ -1532,6 +1579,7 @@
                             "type": "text",
                             "label": "Initial backfill days",
                             "field": "backfill_days",
+                            "help": "Number of days to backfill initially.",
                             "defaultValue": "7",
                             "required": false
                         },
@@ -1623,6 +1671,7 @@
                             "label": "Report period",
                             "field": "period",
                             "defaultValue": "D7",
+                            "help": "Select the period in days for the report.",
                             "required": false,
                             "options": {
                                 "disableSearch": true,
@@ -1742,6 +1791,7 @@
                             "type": "text",
                             "label": "Metrics path",
                             "field": "metrics_path",
+                            "help": "Path to the Prometheus metrics endpoint.",
                             "defaultValue": "/metrics",
                             "required": false
                         },

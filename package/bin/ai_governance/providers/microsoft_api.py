@@ -9,8 +9,8 @@ Used for:
 from __future__ import annotations
 
 import time
-from typing import Any
 from collections.abc import Iterator
+from typing import Any
 
 from ai_governance import MS_GRAPH_BASE, MS_LOGIN_BASE
 from ai_governance.http_client import APIError, JsonHttpClient

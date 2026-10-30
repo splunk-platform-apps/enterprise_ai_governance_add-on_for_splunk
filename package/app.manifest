@@ -27,7 +27,7 @@
         "id": {
             "group": null,
             "name": "TA-ai-governance",
-            "version": "1.1.2"
+            "version": "1.2.0"
         },
         "license": {
             "name": "Apache-2.0",
@@ -51,10 +51,14 @@
     "platformRequirements": null,
     "schemaVersion": "2.0.0",
     "supportedDeployments": [
-        "_standalone"
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
     ],
     "targetWorkloads": [
-        "_search_heads"
+        "_search_heads",
+        "_indexers",
+        "_forwarders"
     ],
     "tasks": null
 }

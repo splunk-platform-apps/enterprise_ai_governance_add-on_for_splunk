@@ -10,8 +10,8 @@ from ai_governance import PROVIDER_GEMINI, ST_GEMINI_AUDIT
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import normalize_gemini_activity
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_csv, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.google_api import GoogleReportsAPI
 
 DEFAULT_APPLICATIONS = ("gemini_in_workspace_apps",)
