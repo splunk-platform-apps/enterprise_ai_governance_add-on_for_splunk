@@ -1133,7 +1133,7 @@
                             "type": "text",
                             "label": "Max log files per cycle",
                             "field": "max_files_per_cycle",
-                            "defaultValue": "100",
+                            "defaultValue": "200",
                             "required": false,
                             "help": "Upper bound on log files downloaded per event type per interval. When the limit is hit the checkpoint stays on the partial page and collection resumes there next interval.",
                             "validators": [
@@ -1245,13 +1245,13 @@
                             "label": "Max events per cycle",
                             "field": "max_events_per_cycle",
                             "help": "Maximum number of events to collect per cycle.",
-                            "defaultValue": "100",
+                            "defaultValue": "2000",
                             "validators": [
                                 {
                                     "type": "number",
                                     "range": [
-                                        1,
-                                        100
+                                        100,
+                                        5000
                                     ],
                                     "errorMsg": "Max events per cycle must be between 1 and 100"
                                 }
@@ -1476,13 +1476,13 @@
                             "label": "Max events per cycle",
                             "field": "max_events_per_cycle",
                             "help": "Maximum number of events to collect per cycle.",
-                            "defaultValue": "1000",
+                            "defaultValue": "5000",
                             "validators": [
                                 {
                                     "type": "number",
                                     "range": [
-                                        1,
-                                        1000
+                                        100,
+                                        5000
                                     ],
                                     "errorMsg": "Maximum events per cycle must be between 1 and 1000."
                                 }
