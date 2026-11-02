@@ -22,7 +22,10 @@
             "developmentStatus": "Production/Stable",
             "intendedAudience": "IT Professionals, Security Analysts, Compliance Teams"
         },
-        "commonInformationModels": null,
+        "commonInformationModels": {
+            "Authentication": "6.0.0",
+            "Change": "6.0.0"
+        },
         "description": "Collect audit, directory, usage and cost data from Anthropic Claude Enterprise, OpenAI, Google Gemini (Workspace) and Microsoft 365 Copilot for AI monitoring, governance and security in Splunk.",
         "id": {
             "group": null,

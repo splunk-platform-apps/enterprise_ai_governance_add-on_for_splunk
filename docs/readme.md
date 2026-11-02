@@ -11,6 +11,7 @@ The [Enterprise AI Governance App for Splunk](https://github.com/splunk-platform
 * Data collection from five provider families, through 19 [sourcetypes](#sourcetypes) and 9 [inputs](#usage), *Anthropic Compliance Activity Feed*, *Anthropic Usage & Cost Analytics*, *OpenAI Compliance Logs (ChatGPT Enterprise)*, *OpenAI Platform Audit Logs*, *OpenAI Usage & Costs*, *Google Gemini Audit (Workspace)*, *Microsoft 365 Copilot Audit*, *Microsoft 365 Copilot Usage* and *Self-Hosted Model Monitor*.
 * **Normalized schema** — collected events use shared fields such as `aigov_provider`, `aigov_product`, `aigov_category`, `aigov_action`, `aigov_user`, and `aigov_src_ip`, where applicable.
 * **Proxy support** — an optional per-account proxy URL routes provider traffic through your egress proxy.
+* **CIM compatibility** - CIM-compliant knowledge objects for use with other Splunk applications, such as [Splunk Enterprise Security (ES)](https://www.splunk.com/en_us/products/enterprise-security.html) and [Splunk IT Service Intelligence (ITSI)](https://www.splunk.com/en_us/products/it-service-intelligence.html).
 
 > [!NOTE]
 > OpenAI Platform Audit Logs and OpenAI Compliance Logs answer different questions and need different credentials, so they are separate inputs rather than one input with a toggle. In particular:
@@ -19,13 +20,13 @@ The [Enterprise AI Governance App for Splunk](https://github.com/splunk-platform
 
 ### Sourcetypes
 
-| Provider | Sourcetypes |
-|---|---|
-| Anthropic | `anthropic:compliance:activity`, `anthropic:compliance:user`, `anthropic:compliance:group`, `anthropic:analytics:usage`, `anthropic:analytics:cost`, `anthropic:analytics:summary` (shared with the [Anthropic Claude Enterprise Add-on](https://github.com/splunk-platform-apps/anthropic_claude_enterprise_add-on_for_splunk)) |
-| OpenAI | `aigov:openai:compliance`, `aigov:openai:audit`, `aigov:openai:user`, `aigov:openai:usage`, `aigov:openai:cost` |
-| Google | `aigov:gemini:audit` |
-| Microsoft | `aigov:copilot:interaction`, `aigov:copilot:usage` |
-| Self-hosted | `aigov:selfhosted:model`, `aigov:selfhosted:audit`, `aigov:selfhosted:metric`, `aigov:selfhosted:runtime`, `aigov:selfhosted:health` |
+| Provider | Sourcetypes | CIM Data Model / Dataset |
+|---|---|---|
+| Anthropic | `anthropic:compliance:activity`, `anthropic:compliance:user`, `anthropic:compliance:group`, `anthropic:analytics:usage`, `anthropic:analytics:cost`, `anthropic:analytics:summary` (shared with the [Anthropic Claude Enterprise Add-on](https://github.com/splunk-platform-apps/anthropic_claude_enterprise_add-on_for_splunk)) | [Change](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Change) (change, audit, account), [Authentication](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Authentication) (authentication) |
+| OpenAI | `aigov:openai:compliance`, `aigov:openai:audit`, `aigov:openai:user`, `aigov:openai:usage`, `aigov:openai:cost` | [Change](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Change) (change, audit, account), [Authentication](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Authentication) (authentication) |
+| Google | `aigov:gemini:audit` | [Change](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Change) (change, audit, account), [Authentication](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Authentication) (authentication) |
+| Microsoft | `aigov:copilot:interaction`, `aigov:copilot:usage` | [Change](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Change) (change, audit, account), [Authentication](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Authentication) (authentication) |
+| Self-hosted | `aigov:selfhosted:model`, `aigov:selfhosted:audit`, `aigov:selfhosted:metric`, `aigov:selfhosted:runtime`, `aigov:selfhosted:health` | [Change](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Change) (change, audit, account), [Authentication](https://docs.splunk.com/Documentation/CIM/6.0.0/User/Authentication) (authentication) |
 
 :point_right: `props.conf` also carries extraction stanzas for additional `anthropic:compliance:*` and `anthropic:analytics:*` sourcetypes that belong to the shared Anthropic taxonomy but are not written by this add-on's inputs.
 
@@ -141,6 +142,7 @@ Checkpoints live in the KV Store collection `ta_ai_governance_checkpoints`. Dele
 
 * Splunk Cloud Platform
 * Splunk Enterprise 10.x (developed and tested on Splunk Enterprise 10.4, standalone)
+* CIM-compatibility 6.x
 
 ## Credits & Acknowledgements
 
