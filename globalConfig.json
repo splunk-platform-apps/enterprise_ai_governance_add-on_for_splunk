@@ -11,6 +11,7 @@
             "dark"
         ],
         "supportedPythonVersion": [
+            "3.9",
             "3.13"
         ]
     },
