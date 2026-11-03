@@ -4,13 +4,13 @@
     "info": {
         "author": [
             {
-                "company": "Cisco",
-                "email": "myeack@cisco.com",
+                "company": "Splunk, Inc.",
+                "email": "myeack@splunk.com",
                 "name": "Michael Yeack"
             },
             {
-                "company": "Cisco",
-                "email": "manangro@cisco.com",
+                "company": "Splunk, Inc.",
+                "email": "manangro@splunk.com",
                 "name": "Manan Grover"
             }
         ],
@@ -22,12 +22,15 @@
             "developmentStatus": "Production/Stable",
             "intendedAudience": "IT Professionals, Security Analysts, Compliance Teams"
         },
-        "commonInformationModels": null,
+        "commonInformationModels": {
+            "Authentication": "6.0.0",
+            "Change": "6.0.0"
+        },
         "description": "Collect audit, directory, usage and cost data from Anthropic Claude Enterprise, OpenAI, Google Gemini (Workspace) and Microsoft 365 Copilot for AI monitoring, governance and security in Splunk.",
         "id": {
             "group": null,
             "name": "TA-ai-governance",
-            "version": "1.1.2"
+            "version": "1.2.0"
         },
         "license": {
             "name": "Apache-2.0",
@@ -51,10 +54,14 @@
     "platformRequirements": null,
     "schemaVersion": "2.0.0",
     "supportedDeployments": [
-        "_standalone"
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
     ],
     "targetWorkloads": [
-        "_search_heads"
+        "_search_heads",
+        "_indexers",
+        "_forwarders"
     ],
     "tasks": null
 }

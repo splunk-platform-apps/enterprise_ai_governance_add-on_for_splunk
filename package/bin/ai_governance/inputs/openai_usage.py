@@ -10,8 +10,8 @@ from ai_governance import PROVIDER_OPENAI, ST_OPENAI_COST, ST_OPENAI_USAGE
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.openai_api import OpenAIAPI
 
 
@@ -123,7 +123,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 index,
                 event_writer,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             logger.warning("OpenAI usage collection failed: %s", exc)
 
     if parse_bool(input_item.get("collect_costs"), True):
@@ -142,7 +142,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 index,
                 event_writer,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             logger.warning("OpenAI cost collection failed: %s", exc)
 
     logger.info("Ingested %s OpenAI usage/cost records", count)

@@ -1,7 +1,8 @@
 import import_declare_test  # noqa: F401 isort: skip
-
 from ai_governance.inputs.anthropic_analytics import (
     stream_events as _stream_events,
+)
+from ai_governance.inputs.anthropic_analytics import (
     validate_input as _validate_input,
 )
 

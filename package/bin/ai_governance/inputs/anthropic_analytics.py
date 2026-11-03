@@ -16,8 +16,8 @@ from ai_governance import (
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.anthropic_api import AnthropicAPI
 
 
@@ -105,7 +105,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                     else event_date,
                 )
                 count += 1
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             # Leave this collector's checkpoint untouched so the window is
             # retried next run rather than silently skipped.
             logger.warning(
