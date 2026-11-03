@@ -4,13 +4,13 @@
     "info": {
         "author": [
             {
-                "company": "Cisco",
-                "email": "myeack@cisco.com",
+                "company": "Splunk, Inc.",
+                "email": "myeack@splunk.com",
                 "name": "Michael Yeack"
             },
             {
-                "company": "Cisco",
-                "email": "manangro@cisco.com",
+                "company": "Splunk, Inc.",
+                "email": "manangro@splunk.com",
                 "name": "Manan Grover"
             }
         ],
