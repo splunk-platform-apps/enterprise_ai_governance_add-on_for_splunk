@@ -20,8 +20,8 @@ from ai_governance.account import get_account_config, require_fields, require_pr
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import compliance_event_time, normalize_openai_compliance
 from ai_governance.http_client import APIError
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_csv, parse_int, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.openai_compliance_api import (
     OpenAIComplianceAPI,
     parse_jsonl,
@@ -113,7 +113,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 exc.status_code,
                 exc,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             # The watermark for this type has not advanced past the failure,
             # so the next cycle retries it without a gap.
             logger.warning(

@@ -103,11 +103,13 @@ class JsonHttpClient:
                 url = url + sep + urllib.parse.urlencode(filtered, doseq=True)
 
         lowered = url.lower()
-        if not lowered.startswith("https://"):
+        if not (
+            lowered.startswith("https://")
+            or (self.allow_http and lowered.startswith("http://"))
+        ):
             # Plain HTTP is only permitted when the account explicitly
             # opts in (self-hosted lab servers on trusted networks).
-            if not (self.allow_http and lowered.startswith("http://")):
-                raise APIError(0, "Only HTTPS endpoints are supported")
+            raise APIError(0, "Only HTTPS endpoints are supported")
 
         all_headers = {
             "Accept": "application/json",

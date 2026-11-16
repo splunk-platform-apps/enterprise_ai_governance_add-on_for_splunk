@@ -32,8 +32,8 @@ from ai_governance import (
 from ai_governance.account import get_account_config, require_fields, require_provider
 from ai_governance.checkpoint import CheckpointStore
 from ai_governance.events import envelope
-from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.input_utils import parse_bool, parse_csv, write_json_event
+from ai_governance.inputs.base import run_input, stanza_key
 from ai_governance.providers.selfhosted_api import PROMETHEUS_SERVERS, SelfHostedAPI
 
 MODEL_SNAPSHOT_SECONDS = 12 * 3600
@@ -91,7 +91,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                 "server_type": api.server_type,
                 "base_url": account["sh_base_url"],
             }
-        except Exception as exc:
+        except RuntimeError as exc:
             health = {
                 "status": "down",
                 "error": str(exc),
@@ -150,7 +150,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                     event_time=now_iso,
                 )
                 count += 1
-        except Exception as exc:
+        except RuntimeError as exc:
             logger.warning("Runtime state collection failed: %s", exc)
 
     # -- Prometheus metrics ---------------------------------------------------
@@ -186,7 +186,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
                     )
                     break
             count += emitted
-        except Exception as exc:
+        except RuntimeError as exc:
             logger.warning("Metrics scrape failed: %s", exc)
 
     return count
