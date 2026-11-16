@@ -1,4 +1,5 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
@@ -41,7 +42,8 @@ const config: Config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts'
+          sidebarPath: './sidebars.ts',
+          beforeDefaultRemarkPlugins: [remarkGithubAdmonitionsToDirectives],
         },
         theme: {
           customCss: ['./src/css/custom.css', './src/css/fonts.css']

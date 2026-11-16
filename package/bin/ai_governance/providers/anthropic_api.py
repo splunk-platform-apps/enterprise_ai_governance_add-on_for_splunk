@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from datetime import date, timedelta
 from typing import Any
-from collections.abc import Iterator
 
 from ai_governance import ANTHROPIC_API_BASE, ANTHROPIC_VERSION
 from ai_governance.http_client import JsonHttpClient

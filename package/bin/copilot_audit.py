@@ -1,9 +1,8 @@
-import import_declare_test  # noqa: F401 — sets up sys.path for bundled lib/ (side-effect import)
-
 import sys
 
-from splunklib import modularinput as smi
+import import_declare_test  # noqa: F401 — sets up sys.path for bundled lib/ (side-effect import)
 from copilot_audit_helper import stream_events, validate_input
+from splunklib import modularinput as smi
 
 
 class COPILOT_AUDIT(smi.Script):
