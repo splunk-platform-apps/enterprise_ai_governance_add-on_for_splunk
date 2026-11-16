@@ -1,6 +1,6 @@
 # Enterprise AI Governance Add-on for Splunk
 
-`TA-ai-governance` collects audit, directory, usage, cost and health data from enterprise AI platforms — Anthropic Claude Enterprise, OpenAI (ChatGPT Enterprise / API Platform), Google Gemini (Workspace), Microsoft 365 Copilot and self-hosted LLM servers.
+The Enterprise AI Governance Add-on for Splunk collects audit, directory, usage, cost and health data from enterprise AI platforms — Anthropic Claude Enterprise, OpenAI (ChatGPT Enterprise / API Platform), Google Gemini (Workspace), Microsoft 365 Copilot and self-hosted LLM servers.
 
 > [!TIP]
 > :bar_chart: Download and install the [Enterprise AI Governance App for Splunk](https://github.com/splunk-platform-apps/enterprise_ai_governance_app_for_splunk) to leverage an out-of-the-box collection of dashboards and knowledge objects enabling data visualization and analytics.
