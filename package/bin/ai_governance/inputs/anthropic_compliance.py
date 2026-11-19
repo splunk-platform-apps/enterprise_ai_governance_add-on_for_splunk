@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -59,9 +66,9 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     after_id = state.get("last_activity_id")
     created_at_gte = None
     if not after_id:
-        created_at_gte = (
-            datetime.now(timezone.utc) - timedelta(days=backfill_days)
-        ).strftime("%Y-%m-%dT%H:%M:%SZ")
+        created_at_gte = (datetime.now(UTC) - timedelta(days=backfill_days)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
 
     count = 0
     last_activity_id = after_id
@@ -109,7 +116,7 @@ def _collect_directory(
         return 0
 
     count = 0
-    snapshot_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    snapshot_time = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     for user in api.list_users():
         payload = envelope(
             dict(user, snapshot_time=snapshot_time),

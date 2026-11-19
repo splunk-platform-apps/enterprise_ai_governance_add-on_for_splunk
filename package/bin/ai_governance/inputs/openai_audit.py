@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from datetime import datetime
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -125,7 +132,7 @@ def _collect_users(
         return 0
 
     count = 0
-    snapshot_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    snapshot_time = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     for user in api.list_users():
         payload = envelope(
             dict(user, snapshot_time=snapshot_time),

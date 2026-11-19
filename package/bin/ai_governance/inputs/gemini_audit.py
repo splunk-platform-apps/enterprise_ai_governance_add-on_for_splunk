@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -64,9 +71,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
         app_state_key = f"last_time_{application}"
         start_time = state.get(app_state_key)
         if not start_time:
-            start_time = _iso(
-                datetime.now(timezone.utc) - timedelta(days=backfill_days)
-            )
+            start_time = _iso(datetime.now(UTC) - timedelta(days=backfill_days))
 
         # API returns newest first; track max item time and dedupe boundary
         # by advancing startTime 1ms past the newest previously seen event.
