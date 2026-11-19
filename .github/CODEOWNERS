@@ -17,4 +17,4 @@
 /.github/workflows/org-*.yml @splunk-platform-apps/admins
 
 # Make docusaurus changes require admin approval
- /website/docusaurus.config.ts @splunk-platform-apps/admins
+/website/docusaurus.config.ts @splunk-platform-apps/admins
