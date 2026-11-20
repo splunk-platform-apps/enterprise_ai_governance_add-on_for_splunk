@@ -56,7 +56,7 @@ def _iso(dt):
 
 
 def _parse_iso(text):
-    return datetime.fromisoformat(str(text).replace("Z", "+00:00"))  # noqa: FURB162
+    return datetime.fromisoformat(str(text).replace("Z", "+00:00"))
 
 
 def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
