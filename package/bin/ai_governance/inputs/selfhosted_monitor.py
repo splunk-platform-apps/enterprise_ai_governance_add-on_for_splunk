@@ -17,7 +17,14 @@ Governance signals collected per cycle:
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from datetime import datetime
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -55,7 +62,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
 
 
 def _now_iso():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _collect(logger, session_key, input_key, input_item, event_writer) -> int:

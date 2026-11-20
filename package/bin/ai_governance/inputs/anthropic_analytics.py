@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Any
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -61,7 +68,7 @@ def _collect(logger, session_key, input_key, input_item, event_writer) -> int:
     # the checkpoint below advances past `ending` unconditionally. On a server
     # ahead of UTC a local "yesterday" can still be today in UTC, so the run
     # would ingest a partial day, checkpoint past it and never backfill it.
-    ending = datetime.now(timezone.utc).date() - timedelta(days=1)
+    ending = datetime.now(UTC).date() - timedelta(days=1)
     default_start = ending - timedelta(days=lookback_days - 1)
     ending_date = ending.isoformat()
 

@@ -12,7 +12,14 @@ The Graph audit log query is asynchronous on the Microsoft side. Each run:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -90,7 +97,7 @@ def _submit_query(logger, api, checkpoint, ckpt_key, state, input_item) -> int:
     backfill_days = min(parse_int(input_item.get("backfill_days"), 7), 180)
     record_types = parse_csv(input_item.get("record_types"), DEFAULT_RECORD_TYPES)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     window_end_limit = now - INGEST_LAG
 
     last_end = state.get("last_window_end")

@@ -11,7 +11,14 @@ move that data into Splunk before it ages out.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+
+    UTC = timezone.utc
 
 from splunklib import modularinput as smi
 
@@ -142,7 +149,7 @@ def _collect_event_type(
     state = checkpoint.get(ckpt_key)
     after = state.get("last_end_time")
     if not after:
-        after = (datetime.now(timezone.utc) - timedelta(days=backfill_days)).strftime(
+        after = (datetime.now(UTC) - timedelta(days=backfill_days)).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
         logger.info(
